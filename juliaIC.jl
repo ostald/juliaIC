@@ -94,6 +94,7 @@ function setReactions(reactions_, particles)
     #replace particle names with index number
     #replace reaction string with actual function
     reactions = []
+    reactions_str = []
     for r in reactions_
         reaction_number = r[1]
         educts_indices = [findfirst(x -> x[2] == ed, particles) for ed in r[3]]
@@ -121,8 +122,9 @@ function setReactions(reactions_, particles)
         branchingratio_float = [if br == "" 1 else parse(Float64, br) end for br in r[6]]
         reaction_info = [reaction_number, educts_indices, nproducts_indices, reaction_rate_function, branchingratio_float]
         append!(reactions, [reaction_info])
+        append!(reactions_str, [reaction_rate_str])
     end
-    return reactions
+    return reactions, reactions_str
 end
 
 function get_ode_mat(reactions, particles)
@@ -172,7 +174,7 @@ function initIC(path_reactions_file, ordering = [])
     reactions_str = readreactionfile(path_reactions_file)
     particles_, reactions_ = getReactionsParticles(reactions_str)
     particles = orderParticles(particles_, ordering)
-    reactions = setReactions(reactions_, particles)
+    reactions, reactions_str = setReactions(reactions_, particles)
     ode_mat = get_ode_mat(reactions, particles)
     ode_raw = get_ode_raw(ode_mat, particles)
 
@@ -219,9 +221,15 @@ function initIC(path_reactions_file, ordering = [])
         dndt[i] = dndtFromString(dndt_str[i])
     end
 
-    return dndt, particles, reactions, ode_raw, dndt_str
+    return dndt, particles, reactions, ode_raw, dndt_str, reactions_str
 end
 
+
+
+end
+
+
+"""
 
 
 function dummyf2(n, p, t)
@@ -280,3 +288,4 @@ function solveIC_allAtOnce(n0, ts, te, nprod, temp, t_save, reactions, dndt)
 end
 
 end
+"""

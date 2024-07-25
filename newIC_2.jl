@@ -12,6 +12,7 @@ include("ion_prod.jl")
 #stepfunctions
 #e_prod_itp = [Interpolator(ts, e_prod[:, ih]) for ih in 1:size(e_prod, 2)]
 #assign all other deinsities too
+#eitenne production
 
 #load reactions, define particles etc.
 const path_reactions_file = "test_data/Reaction rates full set ext.txt"
@@ -57,19 +58,12 @@ tspan = (ts[1], ts[end])
 #tspan = (0, 1)
 prob = ODEProblem(myODEf, n0, tspan, (reactions, nprod, dndt, temp_itp))
 @time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
-
+@profview sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
 
 
 #sol = solve(prob, SciPyDiffEq.BDF(), reltol = 1e-7, abstol = 1e-3)
 
-dn = zeros(size(n0))
-
-dummyf(dn, n0, (reactions, nprod, dndt, temp_itp), 0.1)
-
-
-@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
-@profview sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
-
+ni = stack(sol.u, dims =1)
 
 
 #plot!(range(ts[50],te[100],step=1e-2), [stepf(e_prod[1, :], t, ts, te) for t in range(ts[50],te[100],step=1e-2)])
@@ -83,12 +77,6 @@ function solveIC_allAtOnce(n0, ts, te, nprod_julia, temp, reactions, dndt)
     return sol    
 end
 
-"""
-p = plot(sol[1],
-    xaxis = "Time (t)",
-    yaxis = ("u(t) (in μm)"),
-    label = reshape([p[2] for p in particles], (1, :)),
-    )#ylimits = (1, 1e12))
-"""
 
-
+heatmap(sol.t, h, ni[:, 2, :]')
+heatmap(ts, h, e_prod')

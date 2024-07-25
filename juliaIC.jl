@@ -205,10 +205,10 @@ function initIC(path_reactions_file, ordering = [])
                 if o == [0] #if not participating in reaction, no terms are added
                 else
                     #print(o, "\n")
-                    dndt_str[i] = dndt_str[i] * " .+ $(o[2]) .* rr[$(o[1])][4](tem)"
+                    dndt_str[i] = dndt_str[i] * " .+ $(o[2]) .* rr[$(o[1])]"
                     #dndt_str[i] = dndt_str[i] * " \n .+ $(o[2]).* $(reactions_[o[1]][2])" 
                     for ed_i in o[3]
-                        dndt_str[i] = dndt_str[i] * " .* nn[$ed_i, :]"
+                        dndt_str[i] = dndt_str[i] * " .*  @view(nn[$ed_i, :])"
                         #dndt_str[i] = dndt_str[i] * " $(particles[ed_i][2])"
                     end
                 end

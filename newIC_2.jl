@@ -45,19 +45,36 @@ nprod = assign_prod(e_prod_f, particles, n0)
 
 
 function myODEf(dn, n, p, t)
-    reactions, nprod, dndt, temp_itp = p
+    rrates, nprod, dndt, temp_itp = p
     temp_2 = temp(temp_itp, t)
     for j in 1:size(n)[1]
-        dn[j, :] .= dndt[j](nprod, reactions, temp_2, n, t)
+        dn[j, :] .= dndt[j](nprod, rrates, temp_2, n, t)
+    end
+    nothing
+end
+
+function myODEf_speed(dn, n, p, t)
+    rrates, nprod, dndt, temp_itp = p
+    temp_2 = temp(temp_itp, t)
+    rr = [r(temp_2) for r in rrates]
+    for j in 1:size(n)[1]
+        dn[j, :] .= dndt[j](nprod, rr, temp_2, n, t)
     end
     nothing
 end
 
 
+
+rrates = [r[4] for r in reactions]
+
 tspan = (ts[1], ts[end])
 #tspan = (0, 1)
-prob = ODEProblem(myODEf, n0, tspan, (reactions, nprod, dndt, temp_itp))
-@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
+prob = ODEProblem(myODEf_speed, n0, tspan, (rrates, nprod, dndt, temp_itp))
+
+@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
+@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
+@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
+
 @profview sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
 
 
@@ -77,6 +94,6 @@ function solveIC_allAtOnce(n0, ts, te, nprod_julia, temp, reactions, dndt)
     return sol    
 end
 
-
+#be carefule; plots can be generated without transposing, but will look wierd
 heatmap(sol.t, h, ni[:, 2, :]')
 heatmap(ts, h, e_prod')

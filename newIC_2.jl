@@ -1,5 +1,4 @@
 using DifferentialEquations
-
 using BenchmarkTools
 
 include("juliaIC.jl");
@@ -27,20 +26,11 @@ n0 = zeros(np, nh)
 
 #assign densities
 #nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
-for i in 1:np
-    if particles[i][2] == "N2"
-        n0[i, :] = nion[2, :, 1]
-        println(i)
-    elseif particles[i][2] == "O2"
-        n0[i, :] = nion[3, :, 1]
-    elseif particles[i][2] == "O(1D)"
-        n0[i, :] = nion[4, :, 1]
-    elseif particles[i][2] == "NO+"
-        n0[i, :] = nion[6, :, 1]
-    elseif particles[i][2] == "O2+"
-        n0[i, :] = nion[7, :, 1]
-    elseif particles[i][2] == "O+(4S)"
-        n0[i, :] = nion[8, :, 1]
+nion_mapping = ["ne", "N2", "O2", "O", "Ar", "NO+", "O2+", "O+(4S)"] #mapping must correspond to particle names
+for (ind1, ion) in enumerate(nion_mapping)
+    ind2 = findfirst(==(ion), [p[2] for p in particles])
+    if nothing == ind2 println(ion * " not found")
+    else n0[ind2, :] = nion[ind1, :, 1]
     end
 end
 
@@ -53,7 +43,7 @@ e_prod_itp = interpolate_q(ts, e_prod)
 nprod = assign_prod(e_prod_f, particles, n0)
 
 
-function dummyf(dn, n, p, t)
+function myODEf(dn, n, p, t)
     reactions, nprod, dndt, temp_itp = p
     temp_2 = temp(temp_itp, t)
     for j in 1:size(n)[1]
@@ -64,9 +54,9 @@ end
 
 
 tspan = (ts[1], ts[end])
-tspan = (0, 1)
-prob = ODEProblem(dummyf, n0, tspan, (reactions, nprod, dndt, temp_itp))
-@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
+#tspan = (0, 1)
+prob = ODEProblem(myODEf, n0, tspan, (reactions, nprod, dndt, temp_itp))
+@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
 
 
 
@@ -93,12 +83,12 @@ function solveIC_allAtOnce(n0, ts, te, nprod_julia, temp, reactions, dndt)
     return sol    
 end
 
-
+"""
 p = plot(sol[1],
     xaxis = "Time (t)",
     yaxis = ("u(t) (in μm)"),
     label = reshape([p[2] for p in particles], (1, :)),
     )#ylimits = (1, 1e12))
-
+"""
 
 

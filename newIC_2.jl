@@ -58,11 +58,10 @@ function myODEf_speed(dn, n, p, t)
     temp_2 = temp(temp_itp, t)
     rr = [r(temp_2) for r in rrates]
     for j in 1:size(n)[1]
-        dn[j, :] .= dndt[j](nprod, rr, temp_2, n, t)
+        dn[j, :] .= dndt[j](nprod, rr, 0, n, t)
     end
     nothing
 end
-
 
 
 rrates = [r[4] for r in reactions]
@@ -74,6 +73,7 @@ prob = ODEProblem(myODEf_speed, n0, tspan, (rrates, nprod, dndt, temp_itp))
 @time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
 @time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
 @time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
+
 
 @profview sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
 
@@ -95,5 +95,15 @@ function solveIC_allAtOnce(n0, ts, te, nprod_julia, temp, reactions, dndt)
 end
 
 #be carefule; plots can be generated without transposing, but will look wierd
+using Plots
 heatmap(sol.t, h, ni[:, 2, :]')
 heatmap(ts, h, e_prod')
+
+
+
+"""
+When iterating over all the indices for an array, it is better to iterate over eachindex(A) 
+    instead of 1:length(A). Not only will this be faster in cases where A is IndexCartesian, 
+    but it will also support arrays with custom indexing, such as OffsetArrays. If only the 
+    values are needed, then is better to just iterate the array directly, i.e. for a in A.
+"""

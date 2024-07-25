@@ -37,3 +37,4 @@ function assign_prod(e_prod_f, particles, n0) #n0 sufficient bc major species ar
         end
     end
     return n_prod
+end

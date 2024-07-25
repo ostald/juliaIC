@@ -53,7 +53,6 @@ e_prod_itp = interpolate_q(ts, e_prod)
 nprod = assign_prod(e_prod_f, particles, n0)
 
 
-
 function dummyf(dn, n, p, t)
     reactions, nprod, dndt, temp_itp = p
     temp_2 = temp(temp_itp, t)
@@ -78,7 +77,7 @@ dn = zeros(size(n0))
 dummyf(dn, n0, (reactions, nprod, dndt, temp_itp), 0.1)
 
 
-@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
+@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3);
 @profview sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3)
 
 

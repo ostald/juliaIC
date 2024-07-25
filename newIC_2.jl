@@ -14,11 +14,11 @@ include("ion_prod.jl")
 #assign all other deinsities too
 
 #load reactions, define particles etc.
-const path_reactions_file = "/Users/ost051/Documents/PhD/ElectronPrecipitation/Data/other/Reaction rates full set ext.txt"
+const path_reactions_file = "test_data/Reaction rates full set ext.txt"
 const dndt, particles, reactions, ode_raw, dndt_str = juliaIC.initIC(path_reactions_file)
 
 #load ELSPEC output to define time, height, ion densities, temperatures, production rates.
-con = loadmat("/Users/ost051/Documents/PhD/ElectronPrecipitation/testing/2023.05.03_14_07_04_mixf=0/ElSpec-iqt_IC_0.mat")
+con = loadmat("test_data/ElSpec-iqt_IC_0.mat")
 ts, te, h, nion, T, e_prod = getparams(con)
 nh = length(h)
 np = length(particles)

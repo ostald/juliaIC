@@ -83,8 +83,8 @@ end
 
 
 function parseReactionRate(s)
-    f = eval(Meta.parse("(Te, Tn, Ti, Tr) -> ones(size(Te)) .* " * s))
-    return T -> Base.invokelatest(f, T[1], T[2], T[3], (T[2]+T[3])/2)
+    f = eval(Meta.parse("(Te, Tn, Ti, Tr, X) -> X .* " * s))
+    return (T, X) -> Base.invokelatest(f, T[1], T[2], T[3], (T[2]+T[3])/2, X)
 end
 
 

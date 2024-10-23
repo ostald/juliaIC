@@ -1,6 +1,7 @@
 
 using MAT
 
+#load and return contents of ElSpec output
 function loadmat(matfile)
     file = matopen(matfile)
     con = read(file, "ElSpecOut")
@@ -8,6 +9,10 @@ function loadmat(matfile)
     return con
 end
 
+#get the relevant parameters for IC, some preprocessing applied
+#rescale ion densities to restore plasma neutrality
+#set start time to 0
+#retrieve temperatures
 function getparams(con)
     ne = con["ne"] #size: (62, 674)
     
@@ -22,7 +27,7 @@ function getparams(con)
     Ti = par[:, 2, :]
     Te = par[:, 3, :]
     
-    T = permutedims(cat(Te, Ti, Tn; dims = 3), (2, 1, 3)) #be aware of ordering!!!
+    temp = permutedims(cat(Te, Ti, Tn; dims = 3), (2, 1, 3)) #be aware of ordering!!!
     #size: (674, 62, 3)
     
     ts_ = dropdims(con["ts"]; dims = 2)
@@ -35,5 +40,5 @@ function getparams(con)
     
     h = dropdims(con["h"]; dims = 1)
     
-    return ts, te, h, nion, T, e_prod
+    return ts, te, h, nion, temp, e_prod
 end

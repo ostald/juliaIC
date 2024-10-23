@@ -20,7 +20,7 @@ function temp_matrix(temp_itp, t)
     return [temp_itp[i, j](t) for i in axes(temp_itp, 1), j in axes(temp_itp, 2)]
 end
 
-function temp(temp_itp, t)
+function temp_f(temp_itp, t)
     #evaluates interpolated temperature temp_int at time t
     # returns vector of size 3 with vecotrs of size 62 
     # [3[62]]

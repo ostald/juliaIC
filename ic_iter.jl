@@ -21,14 +21,23 @@ function ic_iter(iter, resdir)
     #load ELSPEC output to define time, height, ion densities, temperatures, production rates.
     con = loadmat(joinpath(resdir, "ElSpec-iqt_IC_" * string(iter) * ".mat"))
     ts, te, h, nion, T, e_prod = getparams(con)
+    
+    #shift first timestep back half an hour
     ts[1] = ts[1] - 60*60*30
+
+    #setup for interpolation with plateaus
+    dt = 0.01
+    t_itp = sort([ts .+ dt; te .- dt])
+    e_prod = repeat(e_prod, inner = (2, 1))
+    T = repeat(T, inner = (2, 1, 1))
+
     nh = length(h)
     nt = length(ts)
     np = length(ionchem.particles)
     n0 = zeros(np, nh)
 
     #interpolation timesteps:
-    t_itp = [ts[1]; (ts[2:end-1] + te[2:end-1])./2; te[end]]
+    #t_itp = [ts[1]; (ts[2:end-1] + te[2:end-1])./2; te[end]]
 
     #assign densities
     #nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
@@ -49,7 +58,7 @@ function ic_iter(iter, resdir)
     ni_prod = assign_prod(e_prod_f, e_prod_itp, ionchem.particles, n0)
 
     #integration period
-    tspan = (ts[1], te[end])
+    tspan = (t_itp[1], t_itp[end])
     #tspan = (0, 10)
 
     @time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)

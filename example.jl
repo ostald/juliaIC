@@ -1,7 +1,6 @@
 using DifferentialEquations
 using BenchmarkTools
 
-include("juliaIC.jl");
 include("loadElspec.jl");
 include("interpolate_temp.jl")
 include("ion_prod.jl")
@@ -9,6 +8,7 @@ include("ionchem.jl")
 using .ionchem
 
 #todo
+# - fix this example, clean up so it is more understandable
 # - clean up
 # - ne not assigned??
 # - stepfunctions

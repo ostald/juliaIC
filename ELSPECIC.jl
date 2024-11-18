@@ -5,7 +5,7 @@ include("loadElspec.jl")
 #Define some parameters
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf";
-resdir = "/Users/ost051/Documents/PhD/Results";
+resdir = "/Users/ost051/Documents/PhD/Results/damped_osc_fixed";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
 if !isdir(resdir)

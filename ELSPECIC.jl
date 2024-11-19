@@ -5,8 +5,13 @@ include("loadElspec.jl")
 #Define some parameters
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf";
-resdir = "/Users/ost051/Documents/PhD/Results/damped_osc_fixed";
+resdir = "/Users/ost051/Documents/PhD/Results/damped_osc_fixed2";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
+
+btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
+etime = [2006, 12, 12, 19, 35, 0.0];
+
+experiment = "arc1"
 
 if !isdir(resdir)
     mkdir(resdir);
@@ -26,7 +31,7 @@ mat"addpath($elspecdir)"
 for i in 1:44
     iter = i-1
     #call Elspec
-    mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir)"
+    mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
     #call IC
     ic_iter(iter, resdir)
 end

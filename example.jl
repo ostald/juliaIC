@@ -43,7 +43,7 @@ temp_itp = interpolate_temp(ts, T)
 #interpolate production
 e_prod_itp = interpolate_q(ts, e_prod)
 
-nprod = assign_prod(e_prod_f, ionchem.particles, n0)
+nprod = assign_prod(e_prod_f, e_prod_itp, ionchem.particles, n0)
 
 tspan = (ts[1], ts[end])
 tspan = (0, 10)

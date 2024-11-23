@@ -3,10 +3,18 @@ include("ic_iter.jl")
 include("loadElspec.jl")
 
 #Define some parameters
+
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf";
-resdir = "/Users/ost051/Documents/PhD/Results/damped_osc_fixed2";
+resdir = "/Users/ost051/Documents/PhD/Results/damped_osc_fixed3";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
+
+"""
+ppdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_4@uhfb_pp";
+fitdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_5@uhfa";
+resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres";
+elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
+"""
 
 btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
 etime = [2006, 12, 12, 19, 35, 0.0];
@@ -35,8 +43,6 @@ for i in 1:44
     #call IC
     ic_iter(iter, resdir)
 end
-
-
 
 
 println("finished")

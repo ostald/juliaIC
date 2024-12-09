@@ -8,8 +8,7 @@ include("ionchem.jl")
 using .ionchem
 
 #todo
-# - fix this example, clean up so it is more understandable
-# - clean up
+# - clean up so it is more understandable
 # - ne not assigned??
 # - stepfunctions
 # - check form/shape of raw data to be interpolated => how is it supplied, how to standardize?

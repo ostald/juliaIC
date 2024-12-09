@@ -9,11 +9,12 @@ using MAT
 
 
 #todo
+# - eitenne production!!!!
+#
 # - clean up & simplify (X, rr, temp_2 in ionchem.ic => really necessary for allocation?)
 # - ne not assigned?? => done, check!!!
-# - stepfunctions
+# - stepfunctions => done
 # - check form/shape of raw data to be interpolated => how is it supplied, how to standardize?
-# - eitenne production
 # - temperature correction of raw electron density ne = P/(1 + Te/Ti) => in ElSpec??
 
 

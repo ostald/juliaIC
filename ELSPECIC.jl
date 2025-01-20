@@ -3,6 +3,7 @@ include("ic_iter.jl")
 include("loadElspec.jl")
 
 
+ENV["MATLAB_ROOT"] = "/usr/local/MATLAB/R2023b"
 
 #Define some parameters
 
@@ -18,15 +19,16 @@ etime = [2006, 12, 12, 19, 35, 0.0];
 experiment = "arc1"
 
 """
-ppdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_4@uhfb_pp";
-fitdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_5@uhfa";
-resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres_iqtcl2";
-elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
+fitdir = "/home/oliver/Documents/Data/2012-12-11_arc1_4@uhf";
+ppdir = "/home/oliver/Documents/Data/2012-12-11_arc1_4@uhf-pp";
+resdir = "/home/oliver/Documents/Results/2012-12-11";
+elspecdir = "/home/oliver/Documents/ELSPEC";
 
-btime = [2022, 11, 02, 17, 05, 0.0]; #must be float array!
-etime = [2022, 11, 02, 17, 10, 0.0];
 
-experiment = "beata"
+btime = [2004, 02, 19, 21, 50, 0.0]; #must be float array!
+etime = [2004, 02, 19, 24, 00, 0.0];
+
+experiment = "arc1"
 
 
 if !isdir(resdir)
@@ -44,9 +46,9 @@ end
 #call Elspec
 mat"addpath($elspecdir)"
 
-for iter in 0:44
+for iter in 0:4
     #call Elspec
-    mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
+    @time mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
     #call IC
     ic_iter(iter, resdir)
 end

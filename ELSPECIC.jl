@@ -26,11 +26,12 @@ for tt in to_evaluate
     resdir = joinpath("/mnt/data/oliver/ic/", date_str)
     btime = tt[1]
     etime = tt[2]
-end
+    experiment = "arc1"
 
 
+
+"""
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
-
 fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf";
 resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
@@ -39,7 +40,7 @@ btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
 etime = [2006, 12, 12, 19, 35, 0.0];
 
 experiment = "arc1"
-
+"""
 """
 ppdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_4@uhfb_pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_5@uhfa";
@@ -76,3 +77,4 @@ end
 
 
 println("finished")
+end

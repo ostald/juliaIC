@@ -32,13 +32,15 @@ function getparams(con)
     
     ts_ = dropdims(con["ts"]; dims = 2)
     te_ = dropdims(con["te"]; dims = 2)
-    ts = ts_ .- ts_[1]
-    te = te_ .- ts_[1]
+    ts = ts_ #.- ts_[1]
+    te = te_ #.- ts_[1]
     
     e_prod = permutedims(con["q"], (2, 1))
     #size 674x62
     
     h = dropdims(con["h"]; dims = 1)
+
+    loc = con["loc"]
     
-    return ts, te, h, nion, temp, e_prod
+    return ts, te, h, nion, temp, e_prod, loc
 end

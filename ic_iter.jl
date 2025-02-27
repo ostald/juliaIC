@@ -4,8 +4,10 @@ include("loadElspec.jl");
 include("interpolate_temp.jl")
 include("ion_prod.jl")
 include("ionchem.jl")
+include("get_msis.jl")
 using .ionchem
 using MAT
+using Dates
 
 
 #todo
@@ -21,10 +23,10 @@ using MAT
 function ic_iter(iter, resdir)
     #load ELSPEC output to define time, height, ion densities, temperatures, production rates.
     con = loadmat(joinpath(resdir, "ElSpec-iqt_IC_" * string(iter) * ".mat"))
-    ts, te, h, nion, T, e_prod = getparams(con)
+    ts, te, h, nion, T, e_prod, loc = getparams(con)
     
     #shift first timestep back half an hour
-    ts[1] = ts[1] - 60*60*30
+    ts[1] = ts[1] - 60*30
 
     #setup for interpolation with plateaus
     dt = 0.01
@@ -39,6 +41,8 @@ function ic_iter(iter, resdir)
 
     #interpolation timesteps:
     #t_itp = [ts[1]; (ts[2:end-1] + te[2:end-1])./2; te[end]]
+
+    particles = ionchem.particles
 
     #assign densities
     #nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
@@ -60,13 +64,23 @@ function ic_iter(iter, resdir)
 
     #integration period
     tspan = (t_itp[1], t_itp[end])
+    t_cb = (t_itp[1] : 1*60 : t_itp[end]) #callback times
+    # could be improved by also chopping up other arguments (eg. temp)
     #tspan = (0, 10)
 
-    @time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
+    function cb_f(integrator) 
+        atm = msis(unix2datetime(integrator.t), h*1e3, loc[1], loc[2])
+        integrator.u[findall(p -> p[2] == "N2", particles)[1], :] = [a.N2_number_density for a in atm]*0
+        integrator.u[findall(p -> p[2] == "O2", particles)[1], :] = [a.O2_number_density for a in atm]*0
+        integrator.u[findall(p -> p[2] == "O" , particles)[1], :] = [a.O_number_density  for a in atm]*0
+    end
 
-    ni = stack(sol.u, dims =1)
+    @time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2, t_cb, cb_f)
+    # filter solutions:
+    filter = [tt ∈ (ts+te)./2 for tt in sol.t]
+    ni = stack(sol.u[filter], dims =1)
 
-    particles = ionchem.particles
+    
     nN2 = ni[:, findall(p -> p[2] == "N2", particles)[1], :]';
     nO2 = ni[:, findall(p -> p[2] == "O2", particles)[1], :]';
     nO  = ni[:, findall(p -> p[2] == "O" , particles)[1], :]';
@@ -88,6 +102,9 @@ function ic_iter(iter, resdir)
     matwrite(file, Dict("elspec_iri_sorted" => elspec_iri_sorted, "eff_rr" => eff_rr);)
 
 end
+
+resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
+ic_iter(0, resdir)
 
 #be careful; plots can be generated without transposing, but will look wierd
 #using Plots

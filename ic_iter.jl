@@ -103,8 +103,8 @@ function ic_iter(iter, resdir)
 
 end
 
-resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
-ic_iter(0, resdir)
+#resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
+#ic_iter(0, resdir)
 
 #be careful; plots can be generated without transposing, but will look wierd
 #using Plots

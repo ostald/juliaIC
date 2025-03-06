@@ -16,7 +16,7 @@ using Dates
 # - clean up & simplify (X, rr, temp_2 in ionchem.ic => really necessary for allocation?)
 # - ne not assigned?? => done, check!!!
 # - stepfunctions => done
-# - check form/shape of raw data to be interpolated => how is it supplied, how to standardize?
+# - check form/shape of raw data to be interpolated => how isf it supplied, how to standardize?
 # - temperature correction of raw electron density ne = P/(1 + Te/Ti) => in ElSpec??
 
 
@@ -70,9 +70,9 @@ function ic_iter(iter, resdir)
 
     function cb_f(integrator) 
         atm = msis(unix2datetime(integrator.t), h*1e3, loc[1], loc[2])
-        integrator.u[findall(p -> p[2] == "N2", particles)[1], :] = [a.N2_number_density for a in atm]*0
-        integrator.u[findall(p -> p[2] == "O2", particles)[1], :] = [a.O2_number_density for a in atm]*0
-        integrator.u[findall(p -> p[2] == "O" , particles)[1], :] = [a.O_number_density  for a in atm]*0
+        integrator.u[findall(p -> p[2] == "N2", particles)[1], :] = [a.N2_number_density for a in atm]
+        integrator.u[findall(p -> p[2] == "O2", particles)[1], :] = [a.O2_number_density for a in atm]
+        integrator.u[findall(p -> p[2] == "O" , particles)[1], :] = [a.O_number_density  for a in atm]
     end
 
     @time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2, t_cb, cb_f)
@@ -103,8 +103,8 @@ function ic_iter(iter, resdir)
 
 end
 
-resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
-ic_iter(0, resdir)
+#resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
+#ic_iter(0, resdir)
 
 #be careful; plots can be generated without transposing, but will look wierd
 #using Plots

@@ -26,7 +26,7 @@ function ic(tspan, n0, ni_prod, temp_itp, nh, t_save = [], t_cb = [], cb_f = [])
     T = temp_f(temp_itp, 0.1)
     X = ones(nh)
     rr = [r(T, X) for r in rrates]
-
+    
     cb = PresetTimeCallback(t_cb, cb_f)
 
     prob = ODEProblem(myODEf, n0, tspan, (rrates, ni_prod, dndt, temp_itp, T, rr, X))

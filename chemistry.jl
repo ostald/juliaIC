@@ -198,7 +198,7 @@ function initIC(path_reactions_file, ordering = [])
             #print(particles[i][2], "\n") #all species that are assumed of constant density (N2, O2, O, H)
         else
             #print(ode_raw[i], "\n")
-            dndt_str[i] = "nprodd[$i](tt)"
+            dndt_str[i] = "nprodd[$i]"
             for o in ode_raw[i]
                 if o == [0] #if not participating in reaction, no terms are added
                 else

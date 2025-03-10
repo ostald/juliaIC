@@ -41,10 +41,10 @@ function assign_prod(e_prod_f, e_prod_itp, particles, n0) #n0 sufficient bc majo
             ni_prod[i] = (t) -> e_prod_f(e_prod_itp, t) .* n0[i_O , :]*0.56 ./(n0[i_O, :]*0.56 .+ n0[i_N2, :]*0.92 .+ n0[i_O2, :])
         end
         if particles[i][2] == "O2+"
-            ni_prod[i] = (t) -> e_prod_f(e_prod_itp, t) .* n0[i_N2, :]*0.92 ./(n0[i_O, :]*0.56 .+ n0[i_N2, :]*0.92 .+ n0[i_O2, :])
+            ni_prod[i] = (t) -> e_prod_f(e_prod_itp, t) .* n0[i_O2, :]      ./(n0[i_O, :]*0.56 .+ n0[i_N2, :]*0.92 .+ n0[i_O2, :])
         end
         if particles[i][2] == "N2+"
-            ni_prod[i] = (t) -> e_prod_f(e_prod_itp, t) .* n0[i_O2, :]      ./(n0[i_O, :]*0.56 .+ n0[i_N2, :]*0.92 .+ n0[i_O2, :])
+            ni_prod[i] = (t) -> e_prod_f(e_prod_itp, t) .* n0[i_N2, :]*0.92 ./(n0[i_O, :]*0.56 .+ n0[i_N2, :]*0.92 .+ n0[i_O2, :])
         end
     end
     return ni_prod

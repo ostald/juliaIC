@@ -142,7 +142,7 @@ function conductivity(ni, temperatures)
     Ti = Tr
     Tn = Tr
 
-    [nH, nHe, nN, nO, nN2, nO2, nCO, nCO2] = [ni[in, :, :] for in in axes(ni, 1)]
+    [nH, nHe, nN, nO, nN2, nO2, nCO, nCO2] = [ni[ind, :, :] for ind in axes(ni, 1)]
     
     nu_Hp_H    = 2.65e-10 .* nH   .* Tr.^(1/2) .* (1 .- 0.083 .* log(10, Tr)).^2
     nu_Hep_He  = 8.73e-11 .* nHe  .* Tr.^(1/2) .* (1 .- 0.093 .* log(10, Tr)).^2

@@ -109,3 +109,7 @@ prob = ODEProblem(myODEf, n0, tspan, (ni_prod, dndt, rr))
 sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = ts, callback = cb);
 #return sol
 
+
+function k(B, nu, amu)
+    return e .* B ./ (nu .* amu)
+end

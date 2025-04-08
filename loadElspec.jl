@@ -38,7 +38,7 @@ function getparams(con)
     e_prod = permutedims(con["q"], (2, 1))
     #size 674x62
     
-    h = dropdims(con["h"]; dims = 1)
+    h = dropdims(con["h"]; dims = 1) .* 1e3
 
     loc = con["loc"]
     

@@ -113,3 +113,5 @@ sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat =
 function k(B, nu, amu)
     return e .* B ./ (nu .* amu)
 end
+
+function 

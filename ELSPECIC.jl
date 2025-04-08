@@ -3,7 +3,7 @@ using Dates
 include("ic_iter.jl")
 include("loadElspec.jl")
 
-
+"""
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf";
 resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
@@ -13,18 +13,29 @@ btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
 etime = [2006, 12, 12, 19, 35, 0.0];
 
 experiment = "arc1"
-
+"""
 """
 ppdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_4@uhfb_pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_5@uhfa";
-resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres_newLimitDiv";
+resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres_FANG";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
 btime = [2022, 11, 02, 17, 05, 0.0]; #must be float array!
 etime = [2022, 11, 02, 17, 10, 0.0];
 
-experiment = "arc1"
+experiment = "beata"
 """
+
+ppdir = "/mnt/data/oliver/02112022/2022-11-02_beata_4@uhfb";
+fitdir = "/mnt/data/oliver/02112022/2022-11-02_beata_5@uhfa";
+resdir = "/home/oliver/Documents/Results/andres_221102/2022-11-02_andres_FANG";
+elspecdir = "/home/oliver/Documents/ELSPEC";
+
+btime = [2022, 11, 02, 17, 05, 0.0]; #must be float array!
+etime = [2022, 11, 02, 17, 30, 0.0];
+
+experiment = "beata"
+
 
 if !isdir(resdir)
     mkdir(resdir);

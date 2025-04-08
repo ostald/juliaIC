@@ -1,4 +1,4 @@
-using BenchmarkTools
+#using BenchmarkTools
 
 include("loadElspec.jl");
 include("interpolate_temp.jl")
@@ -75,7 +75,7 @@ function ic_iter(iter, resdir)
         integrator.u[findall(p -> p[2] == "O" , particles)[1], :] = [a.O_number_density  for a in atm]
     end
 
-    @time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2, t_cb, cb_f)
+    sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2, t_cb, cb_f)
     # filter solutions:
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)

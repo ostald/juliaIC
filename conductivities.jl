@@ -28,51 +28,37 @@ using Plots
 plot(B, h/1e3)
 #---------------------------------------------------------
 
-#--- collision rates -------------------------------------
-#where n_s is given in cm^-3
-nu_Hp_H    = 2.65e-10 .* nH   .* Tr.^(1/2) .* (1 .- 0.083 .* log(10, Tr)).^2
-nu_Hep_He  = 8.73e-11 .* nHe  .* Tr.^(1/2) .* (1 .- 0.093 .* log(10, Tr)).^2
-nu_Np_N    = 3.83e-11 .* nN   .* Tr.^(1/2) .* (1 .- 0.063 .* log(10, Tr)).^2
-nu_Op_O    = 3.67e-11 .* nO   .* Tr.^(1/2) .* (1 .- 0.064 .* log(10, Tr)).^2
-nu_N2p_N2  = 5.14e-11 .* nN2  .* Tr.^(1/2) .* (1 .- 0.069 .* log(10, Tr)).^2
-nu_O2p_O2  = 2.59e-11 .* nO2  .* Tr.^(1/2) .* (1 .- 0.073 .* log(10, Tr)).^2
-nu_Hp_O    = 6.61e-11 .* nO   .* Ti.^(1/2) .* (1 .- 0.047 .* log(10, Ti)).^2
-nu_Op_H    = 4.63e-12 .* nH   .* (Tr ./8).^(1/2)                        
-nu_COp_CO  = 3.42e-11 .* nCO  .* Tr.^(1/2) .* (1 .- 0.085 .* log(10, Tr)).^2
-nu_CO2p_CO2= 2.85e-11 .* nCO2 .* Tr.^(1/2) .* (1 .- 0.083 .* log(10, Tr)).^2
+include("collisionFrequencies.jl")
 
-#The collision frequency coefficients C_in × 10^10 for nonresonant ion–neutral interactions.
-# collision frequency nu_in = C_in * n_n with neutral density n_n in cm^-3
-Ion     H       He      N       O       CO      N2      O2      CO2  
-H+      Ra      10.6    26.1    R       35.6    33.6    32.0    41.4 
-He+     4.71    R       11.9    10.1    16.9    16.0    15.3    20.0 
-C+      1.69    1.71    5.73    4.94    8.74    8.26    8.01    10.7 
-N+      1.45    1.49    R       4.42    7.90    7.47    7.25    9.73 
-O+      R       1.32    4.62    R       7.22    6.82    6.64    8.95 
-CO+     0.74    0.79    2.95    2.58    R       4.24    4.49    6.18 
-N2+     0.74    0.79    2.95    2.58    4.84    R       4.49    6.18 
-NO+     0.69    0.74    2.79    2.44    4.59    4.34    4.27    5.89 
-O2+     0.65    0.70    2.64    2.31    4.37    4.13    R       5.63  
-CO2+    0.47    0.51    2.00    1.76    3.40    3.22    3.18    R
-
-#---------------------------------------------------------
+nu_Hp   = sum_nu(  make_nu_Hp(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr, Ti))
+nu_Hep  = sum_nu( make_nu_Hep(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
+nu_Cp   = sum_nu(  make_nu_Cp(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2))
+nu_Np   = sum_nu(  make_nu_Np(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
+nu_Op   = sum_nu(  make_nu_Op(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
+nu_COp  = sum_nu( make_nu_COp(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
+nu_N2p  = sum_nu( make_nu_N2p(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
+nu_NOp  = sum_nu( make_nu_NOp(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2))
+nu_O2p  = sum_nu( make_nu_O2p(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
+nu_CO2p = sum_nu(make_nu_CO2p(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr))
 
 
 amu = 1.66054e-27 #kg
 mH  =  1*amu
 mHe =  2*amu
+mC  = 12*amu
 mN  = 14*amu
 mO  = 16*amu
-mN2 = 28*amu
-mO2 = 32*amu
 mCO = 28*amu
+mN2 = 28*amu
+mNO = 30*amu
+mO2 = 32*amu
 mCO2= 44*amu
 
 
-function mobility_coeff(B, nu_in, m_i)
+function mobility_coeff(B, nu_i, m_i)
     # ki = eB/(ν_in m_i)
-    # i for ion, n for neutral species
-    k_i = e .* B ./ (nu_in .* m_i)
+    # i for ion, nu_i is already summed for all neutral species
+    k_i = e .* B ./ (nu_i .* m_i)
     return k_i
 end
 
@@ -84,3 +70,47 @@ function Hall_cond(ne, k_i, B)
     condH = ne .* e .* k_i .^2 ./ (B .* (1 .+ k_i.^2))
 end
 
+
+k_Hp  = mobility_coeff(B, nu_Hp, mH)
+pc_Hp = Pederson_cond(ne, k_Hp, B)
+hc_Hp = Hall_cond(ne, k_Hp, B)
+
+k_Hep  = mobility_coeff(B, nu_Hep, mHe)
+pc_Hep = Pederson_cond(ne, k_Hep, B)
+hc_Hep = Hall_cond(ne, k_Hep, B)
+
+k_Cp  = mobility_coeff(B, nu_Cp, mC)
+pc_Cp = Pederson_cond(ne, k_Cp, B)
+hc_Cp = Hall_cond(ne, k_Cp, B)
+
+k_Np  = mobility_coeff(B, nu_Np, mN)
+pc_Np = Pederson_cond(ne, k_Np, B)
+hc_Np = Hall_cond(ne, k_Np, B)
+
+k_Op  = mobility_coeff(B, nu_Op, mO)
+pc_Op = Pederson_cond(ne, k_Op, B)
+hc_Op = Hall_cond(ne, k_Op, B)
+
+k_COp  = mobility_coeff(B, nu_COp, mCO)
+pc_COp = Pederson_cond(ne, k_COp, B)
+hc_COp = Hall_cond(ne, k_COp, B)
+
+k_N2p  = mobility_coeff(B, nu_N2p, mN2)
+pc_N2p = Pederson_cond(ne, k_N2p, B)
+hc_N2p = Hall_cond(ne, k_N2p, B)
+
+k_NOp  = mobility_coeff(B, nu_NOp, mNO)
+pc_NOp = Pederson_cond(ne, k_NOp, B)
+hc_NOp = Hall_cond(ne, k_NOp, B)
+
+k_O2p  = mobility_coeff(B, nu_O2p, mO2)
+pc_O2p = Pederson_cond(ne, k_O2p, B)
+hc_O2p = Hall_cond(ne, k_O2p, B)
+
+k_CO2p  = mobility_coeff(B, nu_CO2p, mCO2)
+pc_CO2p = Pederson_cond(ne, k_CO2p, B)
+hc_CO2p = Hall_cond(ne, k_CO2p, B)
+
+
+pc_total = pc_Hp + pc_Hep + pc_Cp + pc_Np + pc_Op + pc_COp + pc_N2p + pc_NOp + pc_O2p + pc_CO2p
+hc_total = hc_Hp + hc_Hep + hc_Cp + hc_Np + hc_Op + hc_COp + hc_N2p + hc_NOp + hc_O2p + hc_CO2p

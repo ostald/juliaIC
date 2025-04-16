@@ -22,13 +22,15 @@ function myODEf(dn, n, p, t)
     nothing
 end
 
-function ic(tspan, n0, ni_prod, temp_itp, nh, t_save = [])
+function ic(tspan, n0, ni_prod, temp_itp, nh, t_save = [], t_cb = [], cb_f = [])
     T = temp_f(temp_itp, 0.1)
     X = ones(nh)
     rr = [r(T, X) for r in rrates]
 
+    cb = PresetTimeCallback(t_cb, cb_f)
+
     prob = ODEProblem(myODEf, n0, tspan, (rrates, ni_prod, dndt, temp_itp, T, rr, X))
-    sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = t_save);
+    sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = t_save, callback = cb);
     return sol
 end
 

@@ -80,6 +80,10 @@ function ic_iter(iter, resdir)
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)
 
+    #include("save.jl")
+    using JLD2
+    jldsave("ic_densities.jld2"; particles, ts, te, ni)
+
     
     nN2 = ni[:, findall(p -> p[2] == "N2", particles)[1], :]';
     nO2 = ni[:, findall(p -> p[2] == "O2", particles)[1], :]';

@@ -8,6 +8,7 @@ include("get_msis.jl")
 using .ionchem
 using MAT
 using Dates
+using JLD2
 
 
 #todo
@@ -81,7 +82,6 @@ function ic_iter(iter, resdir)
     ni = stack(sol.u[filter], dims =1)
 
     #include("save.jl")
-    using JLD2
     jldsave("ic_densities.jld2"; particles, ts, te, ni)
 
     

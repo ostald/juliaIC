@@ -136,7 +136,25 @@ function conductivity(ni, temperatures)
     # ki = eB/(ν_in m_i)
     # ΣP = n0 e /  B  * ki / (1 + ki^2)
 
+
     amu = 1.66054e-27 #kg
+
+    function mobility_coeff(B, nu, m)
+        # ki = eB/(ν_in m_i)
+        k = e .* B ./ (nu .* m)
+        return k
+    end
+
+    function Pederson_cond(n0, k, B)
+        condP = n0 .* e .* k ./ (B .* (1 .+ k.^2))
+    end
+
+    function Hall_cond(n0, k, B)
+        condH = n0 .* e .* k .^2 ./ (B .* (1 .+ k.^2))
+    end
+
+
+
 
     Tr = temperatures
     Ti = Tr
@@ -228,4 +246,3 @@ condP = n0 .* e .* ki    ./ (B .* (1 .+ ki.^2))
 condH = n0 .* e .* ki.^2 ./ (B .* (1 .+ ki.^2))
 
 heatmap(sol.t, h, condP')
-

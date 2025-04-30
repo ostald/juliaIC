@@ -245,3 +245,4 @@ function sum_nu(nu_is) #sum all collision frequncies, can handle float + matrix,
         sum = sum .+ nu
     end
     return sum
+  end

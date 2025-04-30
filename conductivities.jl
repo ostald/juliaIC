@@ -1,6 +1,6 @@
 using SatelliteToolboxGeomagneticField
 using LinearAlgebra
-
+using JLD2
 
 #also do non-resonant collisions!!!
 # to do:
@@ -9,7 +9,23 @@ using LinearAlgebra
 # - load and save densities
 # - load remperatures
 
+qe = 1.60217663e-19 #Coulomb
 
+data = load("ic_densities.jld2")
+particles = data["particles"]
+ts = data["ts"]
+te = data["te"]
+ni = data["ni"]
+
+ne = transpose(ni[:, 2, :])
+nH = transpose(ni[:, 18, :])
+nHe = 0
+nN = transpose(ni[:, 7, :] .+ ni[:, 8, :])
+nO = transpose(ni[:, 3, :] .+ ni[:, 4, :] .+ ni[:, 5, :])
+nCO = 0
+nN2 = transpose(ni[:, 16, :])
+nO2 = transpose(ni[:, 14, :])
+nCO2 = 0
 
 
 #--- Magnetic field for conductivities ------------
@@ -17,9 +33,21 @@ include("loadElspec.jl")
 
 con = loadmat("/Users/ost051/Documents/PhD/IonChem/juliaIC/test_data/ElSpec-iqt_IC_0.mat")
 
+iri = con["iri"]
+Tn = iri[:, 1, :]
+Ti = iri[:, 2, :]
+Te = iri[:, 3, :]
+Tr = (Tn .+ Ti)./2
+
+Tn = ones(size(nH)) .* 300
+Ti = ones(size(nH)) .* 300
+Te = ones(size(nH)) .* 300
+Tr = ones(size(nH)) .* 300
+
 date = sum(con["btime"][1:3] .* [1, 1/100, 1/10000])
 loc = con["loc"]
 h = con["h"] .* 1e3
+h = h[1:end-1]
 R = Val(:geodetic)
 
 B = norm.(igrfd.(date, h, loc[1], loc[2], R))
@@ -58,16 +86,16 @@ mCO2= 44*amu
 function mobility_coeff(B, nu_i, m_i)
     # ki = eB/(ν_in m_i)
     # i for ion, nu_i is already summed for all neutral species
-    k_i = e .* B ./ (nu_i .* m_i)
+    k_i = qe .* B ./ (nu_i .* m_i)
     return k_i
 end
 
 function Pederson_cond(ne, k_i, B)
-    condP = ne .* e .* k_i ./ (B .* (1 .+ k_i.^2))
+    condP = ne .* qe .* k_i ./ (B .* (1 .+ k_i.^2))
 end
 
 function Hall_cond(ne, k_i, B)
-    condH = ne .* e .* k_i .^2 ./ (B .* (1 .+ k_i.^2))
+    condH = ne .* qe .* k_i .^2 ./ (B .* (1 .+ k_i.^2))
 end
 
 

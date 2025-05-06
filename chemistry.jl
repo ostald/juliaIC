@@ -5,7 +5,7 @@ export solveIC, solveIC_allAtOnce, particles, reactions, initIC
 
 using Profile
 using SciPyDiffEq
-using Plots
+#using Plots
 
 
 function readreactionfile(rfilepath)

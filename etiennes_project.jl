@@ -1,5 +1,5 @@
 using MAT
-using Plots
+#using Plots
 include("interpolate_temp.jl")
 include("ion_prod.jl")
 include("ionchem.jl")
@@ -114,4 +114,4 @@ function k(B, nu, amu)
     return e .* B ./ (nu .* amu)
 end
 
-function 
+#function 

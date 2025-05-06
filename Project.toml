@@ -1,12 +1,8 @@
 [deps]
-CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
-Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 HDF5_jll = "0234f1f7-429e-5d53-9886-15a909be8d59"
 MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
 MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
 PCHIPInterpolation = "afe20452-48d1-4729-9a8b-50fb251f06cd"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 PythonPlot = "274fc56d-3b97-40fa-a1cd-1b4a50311bf9"
-SatelliteToolbox = "6ac157d9-b43d-51bb-8fab-48bf53814f4a"
 SciPyDiffEq = "505e40e9-d84e-434c-8501-7161967c02cb"

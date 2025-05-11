@@ -8,6 +8,7 @@ include("get_msis.jl")
 using .ionchem
 using MAT
 using Dates
+using JLD2
 
 
 #todo
@@ -79,6 +80,9 @@ function ic_iter(iter, resdir)
     # filter solutions:
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)
+
+    #include("save.jl")
+    jldsave("ic_densities.jld2"; particles, ts, te, ni)
 
     
     nN2 = ni[:, findall(p -> p[2] == "N2", particles)[1], :]';

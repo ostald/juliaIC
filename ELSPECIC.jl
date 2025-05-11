@@ -3,8 +3,8 @@ using Dates
 include("ic_iter.jl")
 include("loadElspec.jl")
 
+"""
 #Define some parameters
-
 to_evaluate = [ [[2005, 09, 30, 20, 10, 0.0], [2005, 09, 30, 20, 10, 0.0]],
                 [[2007, 01, 18, 19, 15, 0.0], [2007, 01, 18, 20, 45, 0.0]],
                 [[2007, 12, 12, 00, 00, 0.0], [2007, 12, 12, 04, 30, 0.0]],
@@ -27,8 +27,8 @@ for tt in to_evaluate
     btime = tt[1]
     etime = tt[2]
     experiment = "arc1"
-
-
+end
+"""
 
 """
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
@@ -41,17 +41,18 @@ etime = [2006, 12, 12, 19, 35, 0.0];
 
 experiment = "arc1"
 """
-"""
+
 ppdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_4@uhfb_pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_5@uhfa";
-resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres_newLimitDiv";
+resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres_wtf";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
-btime = [2022, 11, 02, 17, 05, 0.0]; #must be float array!
-etime = [2022, 11, 02, 17, 10, 0.0];
+
+btime = [2022, 11, 02, 17, 00, 0.0]; #must be float array!
+etime = [2022, 11, 02, 17, 30, 0.0];
 
 experiment = "beata"
-"""
+
 
 if !isdir(resdir)
     mkdir(resdir);
@@ -68,13 +69,12 @@ end
 #call Elspec
 mat"addpath($elspecdir)"
 
-for iter in 0:44
+for iter in 0:4
     #call Elspec
-    mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
+    @time mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
     #call IC
     ic_iter(iter, resdir)
 end
 
 
 println("finished")
-end

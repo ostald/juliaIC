@@ -4,7 +4,7 @@ export solveIC, solveIC_allAtOnce, particles, reactions, initIC
 #other variables or methods can be accessed by typing modulName.method
 
 using Profile
-using SciPyDiffEq
+#using SciPyDiffEq
 #using Plots
 
 
@@ -106,7 +106,9 @@ function setReactions(reactions_, particles)
                             replace(
                                 replace(
                                     replace(
-                                        replace(r[5], "<=" => ".<=")
+                                        replace(
+                                            replace(r[5], "<=" => ".<=")
+                                            , "+" => ".+")
                                         , "/" => " ./")
                                     , "**" => ".^")
                                 , "*" => ".*")
@@ -198,7 +200,7 @@ function initIC(path_reactions_file, ordering = [])
             #print(particles[i][2], "\n") #all species that are assumed of constant density (N2, O2, O, H)
         else
             #print(ode_raw[i], "\n")
-            dndt_str[i] = "nprodd[$i]"
+            dndt_str[i] = "nprodd[$i](tt)"
             for o in ode_raw[i]
                 if o == [0] #if not participating in reaction, no terms are added
                 else
@@ -208,7 +210,7 @@ function initIC(path_reactions_file, ordering = [])
                     for ed_i in o[3]
                         #dndt_str[i] = dndt_str[i] * " .*  @view(nn[:, $ed_i])" #for transposed version
                         dndt_str[i] = dndt_str[i] * " .*  @view(nn[$ed_i, :])"
-                        #dndt_str[i] = dndt_str[i] * " $(particles[ed_i][2])"
+                        #dndt_str[i] = dndt_str[i] * " .* $(particles[ed_i][2])"
                     end
                 end
             end

@@ -3,12 +3,15 @@ module ionchem
 include("interpolate_temp.jl")
 include("chemistry.jl");
 
-using DifferentialEquations
+using DifferentialEquations: ODEProblem, solve, TRBDF2, PresetTimeCallback
 
 #load reactions, define particles etc.
 const path_reactions_file = "test_data/Reaction rates full set ext.txt"
 const dndt, particles, reactions, ode_raw, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
 const rrates = [r[4] for r in reactions]
+
+#see dndt_str that is being parsed:
+#print(replace(ionchem.dndt_str[1], ".+" => " \n .+"))
 
 #evaluate ODEs at a timestep
 function myODEf(dn, n, p, t)

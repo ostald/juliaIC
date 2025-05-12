@@ -1,4 +1,3 @@
-using DifferentialEquations
 using BenchmarkTools
 
 include("loadElspec.jl");
@@ -8,16 +7,12 @@ include("ionchem.jl")
 using .ionchem
 
 #todo
-# - clean up so it is more understandable
-# - ne not assigned??
+# - clean up & simplify (X, rr, temp_2 in ionchem.ic => really necessary for allocation?)
+# - ne not assigned?? => done, check!!!
 # - stepfunctions
 # - check form/shape of raw data to be interpolated => how is it supplied, how to standardize?
 # - eitenne production
-
-#load reactions, define particles etc.
-#const path_reactions_file = "test_data/Reaction rates full set ext.txt"
-#const dndt, particles, reactions, ode_raw, dndt_str, reactions_str = juliaIC.initIC(path_reactions_file)
-#rrates = [r[4] for r in reactions]
+# - temperature correction of raw electron density ne = P/(1 + Te/Ti) => in ElSpec??
 
 #load ELSPEC output to define time, height, ion densities, temperatures, production rates.
 con = loadmat("test_data/ElSpec-iqt_IC_0.mat")
@@ -26,36 +21,39 @@ nh = length(h)
 np = length(ionchem.particles)
 n0 = zeros(np, nh)
 
+#interpolation timesteps:
+t_itp = [ts[1]; (ts[2:end-1] + te[2:end-1])./2; te[end]]
+
 #assign densities
 #nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
-nion_mapping = ["ne", "N2", "O2", "O", "Ar", "NO+", "O2+", "O+(4S)"] #mapping must correspond to particle names
+nion_mapping = ["e-", "N2", "O2", "O", "Ar", "NO+", "O2+", "O+(4S)"] #mapping must correspond to ionchem.particle names
 for (ind1, ion) in enumerate(nion_mapping)
     ind2 = findfirst(==(ion), [p[2] for p in ionchem.particles])
     if nothing == ind2 println(ion * " not found")
+    #assign initial densities
     else n0[ind2, :] = nion[ind1, :, 1]
     end
 end
 
 #interpolate temperatures
-temp_itp = interpolate_temp(ts, T)
+temp_itp = interpolate_temp(t_itp, T)
 
-#interpolate production
-e_prod_itp = interpolate_q(ts, e_prod)
+#interpolate production and assign production rates to species
+e_prod_itp = interpolate_q(t_itp, e_prod)
+ni_prod = assign_prod(e_prod_f, e_prod_itp, ionchem.particles, n0)
 
-nprod = assign_prod(e_prod_f, e_prod_itp, ionchem.particles, n0)
+#integration period
+tspan = (ts[1], te[end])
+#tspan = (0, 10)
 
-tspan = (ts[1], ts[end])
-tspan = (0, 10)
+@time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
 
-sol2 = ionchem.ic(tspan, n0, nprod, temp_itp, nh)
-@time sol2 = ionchem.ic(tspan, n0, nprod, temp_itp, nh)
-
-ni = stack(sol2.u, dims =1)
+ni = stack(sol.u, dims =1)
 
 #be carefule; plots can be generated without transposing, but will look wierd
-using Plots
-heatmap(sol2.t, h, ni[:, 2, :]')
-heatmap(ts, h, e_prod')
+using CairoMakie
+heatmap(sol.t, h, ni[:, 2, :])
+heatmap(ts, h, e_prod)
 
 
 

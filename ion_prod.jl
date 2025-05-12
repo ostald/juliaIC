@@ -6,7 +6,7 @@ function interpolate_q(t, e_prod)
 end
 
 function e_prod_f(e_prod_itp, t)
-    return (i.(t) for i in e_prod_itp)
+    return [i.(t) for i in e_prod_itp]
 end
 
 """

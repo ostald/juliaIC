@@ -1,6 +1,7 @@
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 HDF5_jll = "0234f1f7-429e-5d53-9886-15a909be8d59"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
 MATLAB = "10e44e05-a98a-55b3-a45b-ba969058deb6"
 PCHIPInterpolation = "afe20452-48d1-4729-9a8b-50fb251f06cd"

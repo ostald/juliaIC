@@ -52,7 +52,8 @@ ni = stack(sol.u, dims =1)
 
 #be carefule; plots can be generated without transposing, but will look wierd
 using CairoMakie
-heatmap(sol.t, h, ni[:, 2, :])
+fig, ax, hm = heatmap(sol.t, h, ni[:, 2, :])
+Colorbar(fig)
 heatmap(ts, h, e_prod)
 
 

@@ -65,33 +65,45 @@ function ic_iter(iter, resdir)
 
     #integration period
     tspan = (t_itp[1], t_itp[end])
+
+
+    """
+    #Callbacks skew results, as the msis model emplyend here is not the same as in ELSPEC.
+    #solutions: use ELSPEC neutral densities??
+    #OR: use msis here, force elspec to use our model.
+    
     t_cb = (t_itp[1] : 1*60 : t_itp[end]) #callback times
     # could be improved by also chopping up other arguments (eg. temp)
     #tspan = (0, 10)
 
     function cb_f(integrator) 
-        atm = msis(unix2datetime(integrator.t), h*1e3, loc[1], loc[2])
+        atm = msis(unix2datetime(integrator.t), h, loc[1], loc[2])
         integrator.u[findall(p -> p[2] == "N2", particles)[1], :] = [a.N2_number_density for a in atm]
         integrator.u[findall(p -> p[2] == "O2", particles)[1], :] = [a.O2_number_density for a in atm]
         integrator.u[findall(p -> p[2] == "O" , particles)[1], :] = [a.O_number_density  for a in atm]
     end
 
     sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2, t_cb, cb_f)
+    """
+
+    sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
+
     # filter solutions:
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)
 
-    jldsave("ic_densities.jld2"; particles, ts, te, ni)
+    jldsave(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"); particles, ts, te, ni)
 
-    
-    nN2 = ni[:, findall(p -> p[2] == "N2", particles)[1], :]';
-    nO2 = ni[:, findall(p -> p[2] == "O2", particles)[1], :]';
-    nO  = ni[:, findall(p -> p[2] == "O" , particles)[1], :]';
-    nAr = nion[7, :, :];
-    nNOp = ni[:, findall(p -> p[2] == "NO+", particles)[1], :]';
-    nO2p = ni[:, findall(p -> p[2] == "O2+", particles)[1], :]';
+
+    ne     = ni[:, findall(p -> p[2] == "e-"    , particles)[1], :]';
+    nN2    = ni[:, findall(p -> p[2] == "N2"    , particles)[1], :]';
+    nO2    = ni[:, findall(p -> p[2] == "O2"    , particles)[1], :]';
+    nO     = ni[:, findall(p -> p[2] == "O"     , particles)[1], :]';
+    nAr    = nion[7, :, :];
+    nNOp   = ni[:, findall(p -> p[2] == "NO+"   , particles)[1], :]';
+    nO2p   = ni[:, findall(p -> p[2] == "O2+"   , particles)[1], :]';
     nOp_4S = ni[:, findall(p -> p[2] == "O+(4S)", particles)[1], :]';
-
+    nN2p   = ni[:, findall(p -> p[2] == "N2+"   , particles)[1], :]';
 
     #save output, yet to be ordered (code untested)
     elspec_iri_sorted = permutedims(stack([con["iri"][:, 1, :], con["iri"][:, 2, :], con["iri"][:, 3, :], nN2, nO2, nO, nAr, nNOp, nO2p, nOp_4S]), (1, 3, 2))
@@ -103,6 +115,10 @@ function ic_iter(iter, resdir)
 
     file = joinpath(resdir, "IC_" * string(iter) * ".mat")
     matwrite(file, Dict("elspec_iri_sorted" => elspec_iri_sorted, "eff_rr" => eff_rr);)
+
+    #using Plots
+    #plot!(nO2(:, 1), h./1e3)
+
     return ni
 
 end

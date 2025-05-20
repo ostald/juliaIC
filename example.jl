@@ -1,10 +1,4 @@
-using BenchmarkTools
-
-include("loadElspec.jl");
-include("interpolate_temp.jl")
-include("ion_prod.jl")
-include("ionchem.jl")
-using .ionchem
+using ionchem
 
 #todo
 # - clean up & simplify (X, rr, temp_2 in ionchem.ic => really necessary for allocation?)
@@ -18,7 +12,7 @@ using .ionchem
 con = loadmat("test_data/ElSpec-iqt_IC_0.mat")
 ts, te, h, nion, T, e_prod = getparams(con)
 nh = length(h)
-np = length(ionchem.particles)
+np = length(particles)
 n0 = zeros(np, nh)
 
 #interpolation timesteps:
@@ -28,7 +22,7 @@ t_itp = [ts[1]; (ts[2:end-1] + te[2:end-1])./2; te[end]]
 #nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
 nion_mapping = ["e-", "N2", "O2", "O", "Ar", "NO+", "O2+", "O+(4S)"] #mapping must correspond to ionchem.particle names
 for (ind1, ion) in enumerate(nion_mapping)
-    ind2 = findfirst(==(ion), [p[2] for p in ionchem.particles])
+    ind2 = findfirst(==(ion), [p[2] for p in particles])
     if nothing == ind2 println(ion * " not found")
     #assign initial densities
     else n0[ind2, :] = nion[ind1, :, 1]
@@ -40,13 +34,15 @@ temp_itp = interpolate_temp(t_itp, T)
 
 #interpolate production and assign production rates to species
 e_prod_itp = interpolate_q(t_itp, e_prod)
-ni_prod = assign_prod(e_prod_f, e_prod_itp, ionchem.particles, n0)
+ni_prod = assign_prod(e_prod_f, e_prod_itp, particles, n0)
 
 #integration period
 tspan = (ts[1], te[end])
 #tspan = (0, 10)
 
-@time sol = ionchem.ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
+using Profile
+@time sol = ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
+@profview sol = ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
 
 ni = stack(sol.u, dims =1)
 

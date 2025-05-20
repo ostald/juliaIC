@@ -1,13 +1,3 @@
-module chemistry
-
-export solveIC, solveIC_allAtOnce, particles, reactions, initIC
-#other variables or methods can be accessed by typing modulName.method
-
-using Profile
-#using SciPyDiffEq
-#using Plots
-
-
 function readreactionfile(rfilepath)
     #reads reactions from a file, returns strings
     #removes tabs and splits lines by semicolons
@@ -16,7 +6,7 @@ function readreactionfile(rfilepath)
         reactions = ""
         while !eof(rfile)
             s = readline(rfile)
-            if first(s, 12) == "--Reactions:" 
+            if first(s, 12) == "--Reactions:"
                 recordLine = true
                 continue
             end
@@ -54,7 +44,7 @@ function getReactionsParticles(reactions_str)
         end
         reactionrate = strip(r[3], ' ')
         branchingratio = [replace(ratio, ' ' => "") for ratio in split(r[4], ',')]
-        reaction_info = [i, r[1], educts, nproducts, reactionrate, branchingratio]            
+        reaction_info = [i, r[1], educts, nproducts, reactionrate, branchingratio]
         append!(reactions_, [reaction_info])
     end
     return particles_, reactions_
@@ -72,7 +62,7 @@ function orderParticles(particles_, ordering = [])
                 end
             end
         end
-    else 
+    else
         particles_2 = particles_
     end
     particles = [[i, p] for (i, p) in enumerate(particles_2)]
@@ -116,7 +106,7 @@ function setReactions(reactions_, particles)
                         , "where" => "ifelse.")
                     , "exp" => "exp.")
                 , "sqrt" => "sqrt.")
-        
+
         #println(reaction_rate_str)
         reaction_rate_function = parseReactionRate(reaction_rate_str)
         branchingratio_float = [if br == "" 1 else parse(Float64, br) end for br in r[6]]
@@ -170,7 +160,7 @@ end
 
 
 function initIC(path_reactions_file, ordering = [])
-    
+
     reactions_str = readreactionfile(path_reactions_file)
     particles_, reactions_ = getReactionsParticles(reactions_str)
     particles = orderParticles(particles_, ordering)
@@ -206,7 +196,7 @@ function initIC(path_reactions_file, ordering = [])
                 else
                     #print(o, "\n")
                     dndt_str[i] = dndt_str[i] * " .+ $(o[2]) .* rr[$(o[1])]"
-                    #dndt_str[i] = dndt_str[i] * " \n .+ $(o[2]).* $(reactions_[o[1]][2])" 
+                    #dndt_str[i] = dndt_str[i] * " \n .+ $(o[2]).* $(reactions_[o[1]][2])"
                     for ed_i in o[3]
                         #dndt_str[i] = dndt_str[i] * " .*  @view(nn[:, $ed_i])" #for transposed version
                         dndt_str[i] = dndt_str[i] * " .*  @view(nn[$ed_i, :])"
@@ -226,10 +216,6 @@ function initIC(path_reactions_file, ordering = [])
 end
 
 
-
-end
-
-
 """
 
 
@@ -238,12 +224,12 @@ function dummyf2(n, p, t)
     reactions, nprod, dndt, temp, ih = p
     temp_ = temp(t)
     temp_2 = [temp_[i, :] for i in 1:size(temp_,1)]
-    
+
     for j in 1:size(n)[1]
         #dn[j, :] .= nprod[j](t)
         #println(size(dndt[j](nprod, reactions, temp_2, n, t)))
         dn[j] = dndt[j](nprod, reactions, temp_2, n, t)[ih]
-    end 
+    end
     return dn
 end
 
@@ -252,40 +238,40 @@ function dummyf(n, p, t)
     reactions, nprod, dndt, temp = p
     temp_ = temp(t)
     temp_2 = [temp_[i, :] for i in 1:size(temp_,1)]
-            
+
     for j in 1:size(n)[1]
         dn[j, :] .= dndt[j](nprod, reactions, temp_2, n, t)
-    end 
+    end
     return dn
 end
 
 
 function solveIC(n0, ts, te, nprod, temp, t_save, reactions, dndt);
-    
+
     sol = Array{Any}(undef, 62)
 
     for i in 1:62
         #println(i)
-        
+
         u0 = n0[:, i]
         tspan = (ts, te)
         prob = ODEProblem(dummyf2, u0, tspan, (reactions, nprod, dndt, temp, i))
         sol[i] = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = t_save)
     end
     return sol
-    
+
 end
 
 
 
 function solveIC_allAtOnce(n0, ts, te, nprod, temp, t_save, reactions, dndt)
-    
+
     tspan = (ts, te)
     prob = ODEProblem(dummyf, n0, tspan, (reactions, nprod, dndt, temp))
     sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = t_save)
 
     return sol
-    
+
 end
 
 end

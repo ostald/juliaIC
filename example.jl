@@ -51,10 +51,10 @@ tspan = (ts[1], te[end])
 ni = stack(sol.u, dims =1)
 
 #be carefule; plots can be generated without transposing, but will look wierd
-using CairoMakie
-fig, ax, hm = heatmap(sol.t, h, ni[:, 2, :])
-Colorbar(fig)
-heatmap(ts, h, e_prod)
+# using CairoMakie
+# fig, ax, hm = heatmap(sol.t, h, ni[:, 2, :])
+# Colorbar(fig)
+# heatmap(ts, h, e_prod)
 
 
 
@@ -63,8 +63,8 @@ heatmap(ts, h, e_prod)
 
 
 """
-When iterating over all the indices for an array, it is better to iterate over eachindex(A) 
-    instead of 1:length(A). Not only will this be faster in cases where A is IndexCartesian, 
-    but it will also support arrays with custom indexing, such as OffsetArrays. If only the 
+When iterating over all the indices for an array, it is better to iterate over eachindex(A)
+    instead of 1:length(A). Not only will this be faster in cases where A is IndexCartesian,
+    but it will also support arrays with custom indexing, such as OffsetArrays. If only the
     values are needed, then is better to just iterate the array directly, i.e. for a in A.
 """

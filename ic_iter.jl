@@ -92,7 +92,7 @@ function ic_iter(iter, resdir)
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)
 
-    jldsave(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"); particles, ts, te, ni)
+    jldsave(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"); particles, ts, te, h, ni)
 
 
     ne     = ni[:, findall(p -> p[2] == "e-"    , particles)[1], :]';

@@ -124,14 +124,14 @@ end
 
 
 prob = ODEProblem(myODEf, n0, tspan, (ni_prod, dndt, rr))
-sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = ts, callback = cb);
+sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, callback = cb);
 #return sol
 
 ni = stack(sol.u, dims =1)
 
 using JLD2
-resdir = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/Alfven_train_474s/"
-jldsave(joinpath(resdir, "ic_coldIonosphere"*string(iter)*".jld2"); ts, h, T, e_prod, ni, particles)
+resdir = "/mnt/data/oliver/alfventrain474s/"
+jldsave(joinpath(resdir, "ic_activeIonosphere_moret.jld2"); ts, h, T, e_prod, ni, particles)
 
 
 

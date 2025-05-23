@@ -11,11 +11,13 @@ using JLD2
 
 qe = 1.60217663e-19 #Coulomb
 
-data = load("ic_densities.jld2")
+"""
+data = load("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
 particles = data["particles"]
 ts = data["ts"]
-te = data["te"]
+#te = data["te"]
 ni = data["ni"]
+"""
 
 ne = transpose(ni[:, 2, :])
 nH = transpose(ni[:, 18, :])
@@ -29,6 +31,7 @@ nCO2 = 0
 
 
 #--- Magnetic field for conductivities ------------
+"""
 include("loadElspec.jl")
 
 con = loadmat("/Users/ost051/Documents/PhD/IonChem/juliaIC/test_data/ElSpec-iqt_IC_0.mat")
@@ -43,17 +46,30 @@ Tn = ones(size(nH)) .* 300
 Ti = ones(size(nH)) .* 300
 Te = ones(size(nH)) .* 300
 Tr = ones(size(nH)) .* 300
+"""
 
+"""
+Tn = repeat(Tn, inner=(1, size(ne)[2]))
+Ti = repeat(Ti, inner=(1, size(ne)[2]))
+Te = repeat(Te, inner=(1, size(ne)[2]))
+Tr = (Ti .+ Tn) ./2
+"""
+"""
 date = sum(con["btime"][1:3] .* [1, 1/100, 1/10000])
 loc = con["loc"]
 h = con["h"] .* 1e3
 h = h[1:end-1]
+"""
+
+date = sum([2018, 12, 07] .* [1, 1/100, 1/10000])
 R = Val(:geodetic)
 
 B = norm.(igrfd.(date, h, loc[1], loc[2], R))
 
+"""
 using Plots
 plot(B, h/1e3)
+"""
 #---------------------------------------------------------
 
 include("collisionFrequencies.jl")

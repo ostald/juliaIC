@@ -32,6 +32,9 @@ function ic_iter(iter, resdir)
     #setup for interpolation with plateaus
     dt = 0.01
     t_itp = sort([ts .+ dt; te .- dt])
+
+    #t_itp = sort(ts[1]; ; te[end])
+
     e_prod = repeat(e_prod, inner = (2, 1))
     T = repeat(T, inner = (2, 1, 1))
 
@@ -39,9 +42,6 @@ function ic_iter(iter, resdir)
     nt = length(ts)
     np = length(ionchem.particles)
     n0 = zeros(np, nh)
-
-    #interpolation timesteps:
-    #t_itp = [ts[1]; (ts[2:end-1] + te[2:end-1])./2; te[end]]
 
     particles = ionchem.particles
 

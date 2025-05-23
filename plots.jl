@@ -108,6 +108,7 @@ end
 
 heatmap(log10.(ni[:, idx_O2p, :])', 
         clims=(10, 13))
+        
 
 
 function plot_density(density, ts, h, clims=[])

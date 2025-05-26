@@ -11,8 +11,6 @@ include("interpolate_temp.jl")
 include("chemistry.jl");
 
 using DifferentialEquations
-using CairoMakie
-cm = CairoMakie
 
 
 #load reactions, define particles etc.
@@ -31,7 +29,7 @@ ts = data["t"] # in (s)
 
 #ts[1] = ts[1] - 1800
 
-heatmap(ts, h./1e3, max.(6, log10.(total_ionization)))#, xlimits=(0,0.1))
+#heatmap(ts, h./1e3, max.(6, log10.(total_ionization)))#, xlimits=(0,0.1))
 
 
 #Te, Tn from neutral_atm.mat
@@ -127,31 +125,57 @@ prob = ODEProblem(myODEf, n0, tspan, (ni_prod, dndt, rr))
 sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, callback = cb);
 #return sol
 
-ni = stack(sol.u, dims =1)
+filter = unique(i -> sol.t[i], eachindex(sol.t))
+
+tsol = sol.t[filter]
+ni = stack(sol.u[filter], dims =1)
 
 using JLD2
 resdir = "/mnt/data/oliver/alfventrain474s/"
-jldsave(joinpath(resdir, "ic_activeIonosphere_moret.jld2"); ts, h, T, e_prod, ni, particles)
+jldsave(joinpath(resdir, "ic_coldIonosphere.jld2"); tsol, ni, h, T, e_prod, particles, ts)
 
 
-
+using CairoMakie
+cm = CairoMakie
 cm.set_theme!(Theme(colormap = :hawaii))
 
 
 # Electron desnity in time and height
-fig, ax, hm = cm.heatmap(sol.t,
+fig, ax, hm = cm.heatmap(tsol,
                 h/1e3,
-                ni[:, 2, :], 
+                max.(1e5, ni[:, 6, :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                    )
-                #colorscale = log10, 
-                #colorrange = (1e5, 1e11)
+                        limits=((-1800, -1790), nothing)
+                    ),
+                colorscale = log10 ,
+                #colorrange = (1e8, 1e12)
                 )
 cb = cm.Colorbar(fig[1, 2], 
                 hm, 
                 label = "Electron Density [m⁻³]")
 cm.display(fig)
+
+##
+
+# Plot all desnities in time and height
+
+for pix in particles
+fig, ax, hm = cm.heatmap(tsol,
+                h/1e3,
+                max.(1e5, ni[:, pix[1], :]), 
+                axis=(xlabel="Time [s]", 
+                        ylabel="Height [km]",
+                        limits=((-1800, 0), nothing)
+                    ),
+                colorscale = log10 ,
+                #colorrange = (1e8, 1e12)
+                )
+cb = cm.Colorbar(fig[1, 2], 
+                hm, 
+                label = pix[2] *" Density [m⁻³]")
+cm.display(fig)
+end
 
 ##
 
@@ -173,5 +197,3 @@ cm.display(fig)
 
 ##
 
-
-heatmap(sol.t, h./1e3, log10.(ni[:, 2, :]'))

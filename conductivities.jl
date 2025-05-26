@@ -11,6 +11,8 @@ using JLD2
 
 qe = 1.60217663e-19 #Coulomb
 
+@load "/mnt/data/oliver/alfventrain474s/ic_activeIonosphere.jld2"
+
 """
 data = load("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
 particles = data["particles"]
@@ -18,6 +20,7 @@ ts = data["ts"]
 #te = data["te"]
 ni = data["ni"]
 """
+
 
 ne = transpose(ni[:, 2, :])
 nH = transpose(ni[:, 18, :])
@@ -48,12 +51,13 @@ Te = ones(size(nH)) .* 300
 Tr = ones(size(nH)) .* 300
 """
 
-"""
-Tn = repeat(Tn, inner=(1, size(ne)[2]))
-Ti = repeat(Ti, inner=(1, size(ne)[2]))
-Te = repeat(Te, inner=(1, size(ne)[2]))
+
+#T = [Te, Ti, Tn]
+Tn = repeat(T[3], inner=(1, size(ne)[2]))
+Ti = repeat(T[2], inner=(1, size(ne)[2]))
+Te = repeat(T[1], inner=(1, size(ne)[2]))
 Tr = (Ti .+ Tn) ./2
-"""
+
 """
 date = sum(con["btime"][1:3] .* [1, 1/100, 1/10000])
 loc = con["loc"]
@@ -61,6 +65,8 @@ h = con["h"] .* 1e3
 h = h[1:end-1]
 """
 
+
+loc = [76, 5] #hardcoded :(
 date = sum([2018, 12, 07] .* [1, 1/100, 1/10000])
 R = Val(:geodetic)
 
@@ -158,3 +164,47 @@ hc_CO2p = Hall_cond(ne, k_CO2p, B)
 
 pc_total = pc_Hp + pc_Hep + pc_Cp + pc_Np + pc_Op + pc_COp + pc_N2p + pc_NOp + pc_O2p + pc_CO2p
 hc_total = hc_Hp + hc_Hep + hc_Cp + hc_Np + hc_Op + hc_COp + hc_N2p + hc_NOp + hc_O2p + hc_CO2p
+
+using Plots
+p = Plots
+fig = heatmap(tsol, 
+        h./1e3, 
+        max.(-23, log10.(pc_total)),
+        clims=(-23, -20),
+        ylabel = "Height [km]",
+        xlabel = "Time [s]",
+        colorbar_title = "log10 Pederson Conductivity []",
+        xlim = (0, 3),
+        ylim = (100, 200) 
+        )
+
+fig = heatmap(tsol, 
+        h./1e3, 
+        max.(-23, log10.(hc_total)),
+        #clims=(-23, -20),
+        ylabel = "Height [km]",
+        xlabel = "Time [s]",
+        colorbar_title = "log10 Hall Conductivity []",
+        xlim = (0, 3),
+        ylim = (100, 400) 
+        )
+
+
+plot( ne[:, 1]   , h./1e3, xscale=:log10, xlabel = "Electron Density [m-3]", ylabel="Height [km]", label="0 s")
+plot!(ne[:, 1000], h./1e3, label="{1 s")
+plot!(ne[:, 3000], h./1e3, label="{3 s")
+
+
+
+#electron density
+heatmap(tsol,
+        h./1e3, 
+        log10.(ne),
+        xlabel="Time [s]", 
+        ylabel="Height [km]",
+        c=:batlow,
+        #clims=(-12, -7),
+        colorbar_title = "log10 Electron Density [m⁻³]",
+        #colorscale=log10
+        xlims=(0, 0.5)
+        )

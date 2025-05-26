@@ -42,6 +42,19 @@ plot!(max.(1e10, nO2[:, tix]), h/1e3, label = "O2")
 plot!(max.(1e12,  nO[:, tix]), h/1e3, label = "O")
 display(plt) #important in loops!!
 
+#electron density
+heatmap(ts.-ts[1], 
+        h./1e3, 
+        log10.(ne),
+        xlabel="Time [s]", 
+        ylabel="Height [km]",
+        c=:batlow,
+        #clims=(-12, -7),
+        colorbar_title = "log10 Electron Density [m⁻³]",
+        #colorscale=log10
+        xlims=(0, 0.5)
+        )
+
 
 
 #plot charge conservation, relative
@@ -128,7 +141,7 @@ plt = plot_density(nO2p, ts, h, (10, 13))
 colorbar_title = "log10 O2+ Density [m-3]"
 display(plt)
 
-plot_density(nNOp, ts, h, (10, 12))
+plot_density(nNOp, ts, h, (9, 11))
 plot_density(max.(nN2p, 1), ts, h, (5, 10))
 
 heatmap(nO2p./nNOp,

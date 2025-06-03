@@ -1,4 +1,4 @@
-ENV["MATLAB_HOME"]="/Applications/MATLAB_R2024b.app"
+#ENV["MATLAB_HOME"]="/Applications/MATLAB_R2024b.app"
 using MATLAB
 #using Dates
 include("ic_iter.jl")
@@ -31,11 +31,11 @@ for tt in to_evaluate
 end
 """
 
-"""
-ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
-fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf";
-resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_newLimitDiv";
-elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
+
+ppdir = "/home/oliver/Documents/Data/2006-12-12_arc1_4@uhf-pp";
+fitdir = "/home/oliver/Documents/Data/2006-12-12_arc1_4@uhf"
+resdir = "/home/oliver/Documents/Results/2006-12-12_wtf7";
+elspecdir = "/home/oliver/Documents/ELSPEC";
 
 btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
 etime = [2006, 12, 12, 19, 35, 0.0];
@@ -55,7 +55,7 @@ etime = [2022, 11, 02, 17, 10, 0.0];
 
 experiment = "beata"
 
-"""
+
 ppdir = "/mnt/data/oliver/02112022/2022-11-02_beata_4@uhfb";
 fitdir = "/mnt/data/oliver/02112022/2022-11-02_beata_5@uhfa";
 resdir = "/home/oliver/Documents/Results/andres_221102/2022-11-02_andres_wtf2";
@@ -82,7 +82,7 @@ end
 #call Elspec
 mat"addpath($elspecdir)"
 
-for iter in 0:4
+for iter in 0:44
     #call Elspec
     mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
     #sleep(1)

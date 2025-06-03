@@ -33,7 +33,8 @@ function ic(tspan, n0, ni_prod, temp_itp, nh, t_save = [], t_cb = [], cb_f = [])
     cb = PresetTimeCallback(t_cb, cb_f)
 
     prob = ODEProblem(myODEf, n0, tspan, (rrates, ni_prod, dndt, temp_itp, T, rr, X))
-    sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = t_save, callback = cb);
+    sol = solve(prob, TRBDF2(autodiff=false), #reltol = 1e-7, abstol = 1e-3, 
+                saveat = t_save, callback = cb);
     return sol
 end
 

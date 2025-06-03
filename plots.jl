@@ -1,9 +1,10 @@
-## In this file: Plots for single iteration
+## In this file: p.plots for single iteration
 #       - Charge conservation
 #       - Densities etc.
 
 
 using Plots
+p = Plots
 using .ionchem
 particles = ionchem.particles
 include("loadElspec.jl")
@@ -35,15 +36,15 @@ nionsp = nNOp .+ nO2p .+ nOp_4S .+ nOp_2P .+ nOp_2D .+ nN2p .+ nNp .+ nHp .+ nO2
 
 
 
-#plot neutral density profiles:
+#p.plot neutral density profiles:
 tix = 200 #time index
-plt = plot( max.(1e10, nN2[:, tix]), h/1e3, xscale=:log10, label="N2", xlabel = "Density [m⁻³]", ylabel="Height [km]")
-plot!(max.(1e10, nO2[:, tix]), h/1e3, label = "O2")
-plot!(max.(1e12,  nO[:, tix]), h/1e3, label = "O")
+plt = p.plot( max.(1e10, nN2[:, tix]), h/1e3, xscale=:log10, label="N2", xlabel = "Density [m⁻³]", ylabel="Height [km]")
+p.plot!(max.(1e10, nO2[:, tix]), h/1e3, label = "O2")
+p.plot!(max.(1e12,  nO[:, tix]), h/1e3, label = "O")
 display(plt) #important in loops!!
 
 #electron density
-heatmap(ts.-ts[1], 
+p.heatmap(ts.-ts[1], 
         h./1e3, 
         log10.(ne),
         xlabel="Time [s]", 
@@ -57,8 +58,8 @@ heatmap(ts.-ts[1],
 
 
 
-#plot charge conservation, relative
-heatmap(ts.-ts[1], 
+#p.plot charge conservation, relative
+p.heatmap(ts.-ts[1], 
         h./1e3, 
         log10.(max.(1e-12, abs.((ne .- nionsp) ./ ne))),
         xlabel="Time [s]", 
@@ -71,10 +72,10 @@ heatmap(ts.-ts[1],
 
 
 #Charge conservation for each height separately
-plot(ts.-ts[1], ((ne.-nionsp)./ne)', legend=false)
+p.plot(ts.-ts[1], ((ne.-nionsp)./ne)', legend=false)
 
 #N+ Density
-heatmap(ts.-ts[1], 
+p.heatmap(ts.-ts[1], 
         h./1e3, 
         log10.(nNp),
         xlabel="Time [s]", 
@@ -86,7 +87,7 @@ heatmap(ts.-ts[1],
 
 
 #Relaltive N+ Density
-heatmap(ts.-ts[1], 
+p.heatmap(ts.-ts[1], 
         h./1e3, 
         log10.(nNp./ne),
         xlabel="Time [s]", 
@@ -112,20 +113,20 @@ for iter in 1:4
 
         var_ni = (ni_old .- ni) ./ ni
 
-        plt = heatmap(var_ni[:, idx_O2p, :]')
+        plt = p.heatmap(var_ni[:, idx_O2p, :]')
         display(plt)
 
         ni_old = ni
 end
 
 
-heatmap(log10.(ni[:, idx_O2p, :])', 
+p.heatmap(log10.(ni[:, idx_O2p, :])', 
         clims=(10, 13))
         
 
 
-function plot_density(density, ts, h, clims=[])
-        plt = heatmap(ts.-ts[1], 
+function p.plot_density(density, ts, h, clims=[])
+        plt = p.heatmap(ts.-ts[1], 
                 h./1e3, 
                 log10.(density),
                 xlabel="Time [s]", 
@@ -137,14 +138,14 @@ function plot_density(density, ts, h, clims=[])
         return plt
 end
 
-plt = plot_density(nO2p, ts, h, (10, 13))
+plt = p.plot_density(nO2p, ts, h, (10, 13))
 colorbar_title = "log10 O2+ Density [m-3]"
 display(plt)
 
-plot_density(nNOp, ts, h, (9, 11))
-plot_density(max.(nN2p, 1), ts, h, (5, 10))
+p.plot_density(nNOp, ts, h, (9, 11))
+p.plot_density(max.(nN2p, 1), ts, h, (5, 10))
 
-heatmap(nO2p./nNOp,
+p.heatmap(nO2p./nNOp,
         xlabel="Time [s]", 
         ylabel="Height [km]",
         c=:batlow)
@@ -152,7 +153,7 @@ heatmap(nO2p./nNOp,
 
 
 con = loadmat(joinpath(resdir, "ElSpec-iqt_IC_"*string(iter)*".mat"))
-heatmap(con["iri"][:, 9, :] ./ con["iri"][:, 8, :],
+p.heatmap(con["iri"][:, 9, :] ./ con["iri"][:, 8, :],
         xlabel="Time [s]", 
         ylabel="Height [km]",
         c=:batlow)
@@ -175,7 +176,7 @@ for iter in 1:14
         
         var_effrr = (effrr_old .- effrr) ./ effrr
 
-        plt = heatmap(var_effrr)
+        plt = p.heatmap(var_effrr)
         display(plt)
 
         effrr_old = effrr

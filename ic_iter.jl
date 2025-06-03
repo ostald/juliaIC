@@ -92,9 +92,12 @@ function ic_iter(iter, resdir)
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)
 
-    jldsave(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"); particles, ts, te, h, ni, e_prod, T)
+    assign_densities(ni, particles)
 
+    save_ic(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"), tsol, ni, h, T, e_prod, particles, ts)
+#    jldsave(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"); particles, ts, te, h, ni, e_prod, T)
 
+    """
     ne     = ni[:, findall(p -> p[2] == "e-"    , particles)[1], :]';
     nN2    = ni[:, findall(p -> p[2] == "N2"    , particles)[1], :]';
     nO2    = ni[:, findall(p -> p[2] == "O2"    , particles)[1], :]';
@@ -104,6 +107,9 @@ function ic_iter(iter, resdir)
     nO2p   = ni[:, findall(p -> p[2] == "O2+"   , particles)[1], :]';
     nOp_4S = ni[:, findall(p -> p[2] == "O+(4S)", particles)[1], :]';
     nN2p   = ni[:, findall(p -> p[2] == "N2+"   , particles)[1], :]';
+    """
+    nAr    = nion[7, :, :];
+
 
     #save output, yet to be ordered (code untested)
     elspec_iri_sorted = permutedims(stack([con["iri"][:, 1, :], con["iri"][:, 2, :], con["iri"][:, 3, :], nN2, nO2, nO, nAr, nNOp, nO2p, nOp_4S]), (1, 3, 2))

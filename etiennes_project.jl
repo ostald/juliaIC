@@ -12,6 +12,10 @@ include("chemistry.jl");
 
 using DifferentialEquations
 
+include("ic_io.jl")
+
+res_filename = "ic_coldIonosphere.jld2"
+resdir = "/mnt/data/oliver/alfventrain474s/"
 
 #load reactions, define particles etc.
 path_reactions_file = "test_data/Reaction rates full set ext.txt"
@@ -40,7 +44,7 @@ Ti = Tn
 T = [Te, Ti, Tn]
 
 
-ne  = neutral_atm["ne"][1:end-3]
+ne  = neutral_atm["ne"][1:end-3] .* 0 .+ 1
 nO  = neutral_atm["nO"][1:end-3]
 nO2 = neutral_atm["nO2"][1:end-3]
 nN2 = neutral_atm["nN2"][1:end-3]
@@ -64,11 +68,21 @@ for (ind1, ion) in enumerate(nion_mapping)
     end
 end
 
+loc = [76, 5] #hardcoded :(
+
+"""
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
+ENV["JULIA_PYTHONCALL_EXE"] = "/Library/Frameworks/Python.framework/Versions/3.10/bin/python3"
+using PythonCall
+iri2016 = pyimport("iri2016 => IRI")
+date = sum([2018, 12, 07] .* [1, 1/100, 1/10000])
+iri2016.IRI(date.astype(datetime), h, loc[0], loc[1])
+"""
+
+
 n0[findall(p -> p[2] == "NO+", particles)[1], :] = 1/3 .* ne
 n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
 n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
-
-loc = [76, 5] #hardcoded :(
 
 
 #fix prodiction!!
@@ -130,23 +144,26 @@ filter = unique(i -> sol.t[i], eachindex(sol.t))
 tsol = sol.t[filter]
 ni = stack(sol.u[filter], dims =1)
 
-using JLD2
-resdir = "/mnt/data/oliver/alfventrain474s/"
-jldsave(joinpath(resdir, "ic_coldIonosphere.jld2"); tsol, ni, h, T, e_prod, particles, ts)
+save_ic(joinpath(resdir, res_filename), tsol, ni, h, T, e_prod, particles, ts)
+#jldsave(joinpath(resdir, "ic_coldIonosphere.jld2"); tsol, ni, h, T, e_prod, particles, ts)
+
+assign_densities(ni, particles)
+ni_ion = nNOp .+ nO2p .+ nOp_4S .+ nOp_2P .+ nOp_2D .+ nN2p .+ nNp .+ nHp .+ nO2p_a4P
+
 
 
 using CairoMakie
 cm = CairoMakie
 cm.set_theme!(Theme(colormap = :hawaii))
 
-
+##
 # Electron desnity in time and height
 fig, ax, hm = cm.heatmap(tsol,
                 h/1e3,
                 max.(1e5, ni[:, 6, :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                        limits=((-1800, -1790), nothing)
+                        #limits=((-1800, -1790), nothing)
                     ),
                 colorscale = log10 ,
                 #colorrange = (1e8, 1e12)
@@ -166,7 +183,7 @@ fig, ax, hm = cm.heatmap(tsol,
                 max.(1e5, ni[:, pix[1], :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                        limits=((-1800, 0), nothing)
+                        #limits=((-1800, 0), nothing)
                     ),
                 colorscale = log10 ,
                 #colorrange = (1e8, 1e12)
@@ -197,3 +214,27 @@ cm.display(fig)
 
 ##
 
+#Charge balance
+fig, ax, hm = cm.heatmap(tsol,
+                h/1e3,
+                transpose((ni_ion .- ne ) ./ ne) ,
+                #max.(1e5, ni[:, pix[1], :]), 
+                axis=(xlabel="Time [s]", 
+                        ylabel="Height [km]",
+                        #limits=((-1800, 0), nothing)
+                    ),
+                #colorscale = log10 ,
+                #colorrange = (1e8, 1e12)
+                )
+cb = cm.Colorbar(fig[1, 2], 
+                hm, 
+                label = "Charge imbalance")
+cm.display(fig)
+
+#tsol, ni, h, T, e_prod, particles, ts = load_ic(joinpath(resdir, res_filename))
+
+fig, ax, lin = scatter(0, 0)
+for idx in 1:nh
+    lines!(tsol, ((ni_ion .- ne ) ./ ne)[idx, :] )
+end
+display(fig)

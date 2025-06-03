@@ -20,10 +20,18 @@ nu_Op_O(nO, Tr)         = 3.67e-17 .* nO   .* Tr.^(1/2) .* (1 .- 0.064 .* log10.
 nu_N2p_N2(nN2, Tr)      = 5.14e-17 .* nN2  .* Tr.^(1/2) .* (1 .- 0.069 .* log10.(Tr)).^2
 nu_O2p_O2(nO2, Tr)      = 2.59e-17 .* nO2  .* Tr.^(1/2) .* (1 .- 0.073 .* log10.(Tr)).^2
 nu_Hp_O(nO, Ti)         = 6.61e-17 .* nO   .* Ti.^(1/2) .* (1 .- 0.047 .* log10.(Ti)).^2    #be aware that here it is Ti! (Schunk and Nagy, P.107)
-nu_Op_H(nH, Tr)         = 4.63e-18 .* nH   .* (Tr ./8).^(1/2)                        
+nu_Op_H(nH, Tn, Ti)     = 4.63e-18 .* nH   .* (Tn + Ti./16).^(1/2)                        
 nu_COp_CO(nCO, Tr)      = 3.42e-17 .* nCO  .* Tr.^(1/2) .* (1 .- 0.085 .* log10.(Tr)).^2
 nu_CO2p_CO2(nCO2, Tr)   = 2.85e-17 .* nCO2 .* Tr.^(1/2) .* (1 .- 0.083 .* log10.(Tr)).^2
 
+"""
+#temperature dependence:
+using CairoMakie
+Tr = 1:4000
+fig , ax, lin = lines(Tr, nu_O2p_O2(1, Tr), axis=(xlabel="Temperature [K]", ylabel="Collision Freq O2p O2"),)
+lines!([800, 800], [0, 8e-16])
+display(fig)
+"""
 
 #The collision frequency coefficients C_in × 10^10 for nonresonant ion–neutral interactions.
 # collision frequency nu_in = C_in * n_n with neutral density n_n in cm^-3
@@ -172,8 +180,8 @@ make_nu_Np(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr) = [
   , nu_Np_CO2(nCO2) 
   ]
 
-make_nu_Op(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr) = [
-    nu_Op_H(nH, Tr)       
+make_nu_Op(nH, nHe, nN, nO, nCO, nN2, nO2, nCO2, Tr, Ti, Tn) = [
+    nu_Op_H(nH, Tn, Ti)       
   , nu_Op_He(nHe) 
   , nu_Op_N(nN)       
   , nu_Op_O(nO, Tr)       
@@ -246,3 +254,45 @@ function sum_nu(nu_is) #sum all collision frequncies, can handle float + matrix,
     end
     return sum
   end
+
+
+  ##
+  #Electron collision frequencies
+  #N2  2.33 * 10-11 n(N2) (1 - 1.21 * 10-4Te)Te  
+  #O2  1.82 * 10-10 n(O2) (1 + 3.6 * 10-2T 1/2  e )T 1/2  e  
+  #O   8.9  * 10-11 n(O)  (1 + 5.7 * 10-4Te)T 1/2  e  
+  #He  4.6  * 10-10 n(He) T 1/2  e  
+  #H   4.5  * 10-9  n(H)  (1 - 1.35 * 10-4Te)T 1/2  e 
+  #CO  2.34 * 10-11 n(CO) (Te + 165) 
+  #CO2 3.68 * 10-8  n(CO2)(1 + 4.1 * 10-11|4500 - Te|2.93)
+
+nu_e_N2(nN2, Te)   = 2.33 .* 1e-17 .* nN2 .* (1  .- (1.21e-4 .* Te)) .* Te
+nu_e_O2(nO2, Te)   = 1.82 .* 1e-16 .* nO2 .* (1  .+ (3.6e-2  .* (Te  .^ (1/2)))) .* (Te .^ (1/2))
+nu_e_O(nO, Te)     = 8.9  .* 1e-17 .* nO  .* (1  .+ (5.7e-4  .* Te)) .* (Te .^ (1/2))
+nu_e_He(nHe, Te)   = 4.6  .* 1e-16 .* nHe .* (Te .^ (1/2))
+nu_e_H(nH, Te)     = 4.5  .* 1e-15 .* nH  .* (1  .- (1.35e-4 .* Te)) .* (Te .^ (1/2))
+nu_e_CO(nCO, Te)   = 2.34 .* 1e-17 .* nCO .* (Te .+ 165) 
+nu_e_CO2(nCO2, Te) = 3.68 .* 1e-14 .* nCO2.* (1  .+ 4.1e-11  .* (abs.(4500 .- Te) .^ 2.93))
+
+"""
+Te = 1:4000
+fig, ax, lin = lines(nu_e_N2(1, Te), axis=(xlabel="Electron Temperature [K]", ylabel = "Collision Freq. e N2"), label = "e N2")
+lines!(nu_e_O2(1, Te), label = "e O2")
+lines!(nu_e_O(1, Te), label = "e O")
+lines!(nu_e_He(1, Te), label = "e He")
+lines!(nu_e_H(1, Te), label = "e H")
+lines!(nu_e_CO(1, Te), label = "e CO")
+lines!(nu_e_CO2(1, Te), label = "e CO2")
+axislegend()
+display(fig)
+"""
+
+make_nu_e(nH, nHe, nO, nCO, nN2, nO2, nCO2, Te) = [
+   nu_e_N2(nN2, Te)  
+  ,nu_e_O2(nO2, Te)  
+  ,nu_e_O(nO, Te)    
+  ,nu_e_He(nHe, Te)  
+  ,nu_e_H(nH, Te)    
+  ,nu_e_CO(nCO, Te)  
+  ,nu_e_CO2(nCO2, Te)
+]

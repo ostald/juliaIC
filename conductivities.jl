@@ -473,7 +473,7 @@ cm.display(fig)
 
 
 ##
-for idxh in [127, 147, 166]
+for idxh in [86, 106, 127, 147, 166]
 #idxh = 147
 fig, ax, hm = cm.lines(tsol,
                         pc_total'[:, idxh],

@@ -14,13 +14,15 @@ using DifferentialEquations
 
 include("ic_io.jl")
 
-res_filename = "ic_coldIonosphere.jld2"
+initialize = "loop"
+res_filename = "ic_loopIonosphere.jld2"
 resdir = "/mnt/data/oliver/alfventrain474s/"
 
 #load reactions, define particles etc.
 path_reactions_file = "test_data/Reaction rates full set ext.txt"
 dndt, particles, reactions, ode_raw, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
 rrates = [r[4] for r in reactions]
+
 
 path_to_ion_rates = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/Alfven_train_474s/Qzt_all_L.mat"
 path_to_neutral_atm = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/Alfven_train_474s/neutral_atm.mat"
@@ -31,40 +33,67 @@ total_ionization = total_ionization[1:end-3, :] * 1e4 # to get units of (/m³/s)
 h = data["h_atm"][1:end-3] # in (m)
 ts = data["t"] # in (s)
 
-#ts[1] = ts[1] - 1800
+e_prod = total_ionization';
 
-#heatmap(ts, h./1e3, max.(6, log10.(total_ionization)))#, xlimits=(0,0.1))
-
-
-#Te, Tn from neutral_atm.mat
 neutral_atm =  matread(path_to_neutral_atm)
-Te = neutral_atm["Te"][1:end-3]
-Tn = neutral_atm["Tn"][1:end-3]
-Ti = Tn
-T = [Te, Ti, Tn]
-
-
-ne  = neutral_atm["ne"][1:end-3] .* 0 .+ 1
-nO  = neutral_atm["nO"][1:end-3]
-nO2 = neutral_atm["nO2"][1:end-3]
-nN2 = neutral_atm["nN2"][1:end-3]
-nion = stack([ne, nN2, nO2, nO])'#, nAr, nNOp, nO2p, nOp]
 
 nh = length(h)
 nt = length(ts)
 np = length(ionchem.particles)
 n0 = zeros(np, nh)
 
-#dt = 0.0001
+if initialize == "preheat"
+    ts[1] = ts[1] - 1800
+    e_prod[1, :] = e_prod[101, :]
+    ne  = neutral_atm["ne"][1:end-3] .* 0 .+ 1
+    n0[findall(p -> p[2] == "NO+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
 
-#assign densities
-#nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
-nion_mapping = ["e-", "N2", "O2", "O"]#, "Ar", "NO+", "O2+", "O+(4S)"] #mapping must correspond to ionchem.particle names
-for (ind1, ion) in enumerate(nion_mapping)
-    ind2 = findfirst(==(ion), [p[2] for p in particles])
-    if nothing == ind2 println(ion * " not found")
-    #assign initial densities
-    else n0[ind2, :] = nion[ind1, :]
+elseif initialize == "loop"
+    _, ni, _, _, _, _, _ = load_ic("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
+    n0 = ni[end, :, :]
+    #ne = ne[:, end]
+    #n0[findall(p -> p[2] == "NO+", particles)[1], :] = nNOp[:, end]
+    #n0[findall(p -> p[2] == "O2+", particles)[1], :] = nO2p[:, end]
+    #n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = nOp_4S[:, end]
+elseif initialize == "cold"
+    ne  = neutral_atm["ne"][1:end-3] .* 0 .+ 1
+    n0[findall(p -> p[2] == "NO+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
+
+end
+
+#heatmap(ts, h./1e3, max.(6, log10.(total_ionization)))#, xlimits=(0,0.1))
+
+
+#Te, Tn from neutral_atm.mat
+Te = neutral_atm["Te"][1:end-3]
+Tn = neutral_atm["Tn"][1:end-3]
+Ti = Tn
+T = [Te, Ti, Tn]
+
+
+if initialize != "loop"
+    nO  = neutral_atm["nO"][1:end-3]
+    nO2 = neutral_atm["nO2"][1:end-3]
+    nN2 = neutral_atm["nN2"][1:end-3]
+    nion = stack([ne, nN2, nO2, nO])'#, nAr, nNOp, nO2p, nOp]
+
+
+
+    #dt = 0.0001
+
+    #assign densities
+    #nion = [ne, nN2, nO2, nO, nAr, nNOp, nO2p, nOp]
+    nion_mapping = ["e-", "N2", "O2", "O"]#, "Ar", "NO+", "O2+", "O+(4S)"] #mapping must correspond to ionchem.particle names
+    for (ind1, ion) in enumerate(nion_mapping)
+        ind2 = findfirst(==(ion), [p[2] for p in particles])
+        if nothing == ind2 println(ion * " not found")
+        #assign initial densities
+        else n0[ind2, :] = nion[ind1, :]
+        end
     end
 end
 
@@ -79,15 +108,8 @@ date = sum([2018, 12, 07] .* [1, 1/100, 1/10000])
 iri2016.IRI(date.astype(datetime), h, loc[0], loc[1])
 """
 
+max_ionization = stack([findmax(total_ionization[:, idt]) for idt in axes(total_ionization, 2)])
 
-n0[findall(p -> p[2] == "NO+", particles)[1], :] = 1/3 .* ne
-n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
-n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
-
-
-#fix prodiction!!
-e_prod = total_ionization';
-e_prod[1, :] = e_prod[60, :]
 #e_prod_itp = [Interpolator(ts, e_prod[:, ih]) for ih in axes(e_prod, 2)]
 
 ni_prod = Array{Any}(undef, length(particles))
@@ -139,7 +161,7 @@ prob = ODEProblem(myODEf, n0, tspan, (ni_prod, dndt, rr))
 sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, callback = cb);
 #return sol
 
-filter = unique(i -> sol.t[i], eachindex(sol.t))
+filter = unique(i -> round(sol.t[i], digits = 4), eachindex(sol.t))
 
 tsol = sol.t[filter]
 ni = stack(sol.u[filter], dims =1)
@@ -160,10 +182,10 @@ cm.set_theme!(Theme(colormap = :hawaii))
 # Electron desnity in time and height
 fig, ax, hm = cm.heatmap(tsol,
                 h/1e3,
-                max.(1e5, ni[:, 6, :]), 
+                max.(1e5, ni[:, 2, :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                        #limits=((-1800, -1790), nothing)
+                        limits=((-10, 3), nothing)
                     ),
                 colorscale = log10 ,
                 #colorrange = (1e8, 1e12)
@@ -204,6 +226,7 @@ fig, ax, hm = cm.heatmap(ts,
                         colorrange = (10^(6), 1e11),
                         axis=(xlabel="Time [s]", 
                             ylabel="Height [km]",
+                            limits=((0, 0.5), nothing),
                             )
                         )
 cb = cm.Colorbar(fig[1, 2], 
@@ -221,7 +244,7 @@ fig, ax, hm = cm.heatmap(tsol,
                 #max.(1e5, ni[:, pix[1], :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                        #limits=((-1800, 0), nothing)
+                        #limits=((-1800, 0), nothing),
                     ),
                 #colorscale = log10 ,
                 #colorrange = (1e8, 1e12)
@@ -233,7 +256,7 @@ cm.display(fig)
 
 #tsol, ni, h, T, e_prod, particles, ts = load_ic(joinpath(resdir, res_filename))
 
-fig, ax, lin = scatter(0, 0)
+fig, ax, lin = scatter(0, 0, axis=(title="Charge conservation",),)
 for idx in 1:nh
     lines!(tsol, ((ni_ion .- ne ) ./ ne)[idx, :] )
 end

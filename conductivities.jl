@@ -11,7 +11,7 @@ cm.set_theme!(Theme(colormap = :hawaii))
 
 qe = 1.60217663e-19 #Coulomb
 
-tsol, ni, h, T, e_prod, particles, ts = load_ic("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
+#tsol, ni, h, T, e_prod, particles, ts = load_ic("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
 
 """
 data = load("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
@@ -405,6 +405,8 @@ lines!(hc_total[:, ixt],
         h./1e3,    
         label="Hall"
         )
+axislegend(position=:lt)
+
 #lines!(hc_e[:, ixt],
 #        h./1e3,    
 #        label="H e"
@@ -505,6 +507,79 @@ axislegend()
 
 cm.display(fig)
 end
+
+
+##
+for idxh in [86, 106, 127, 147, 166]
+        #idxh = 147
+        fig, ax, hm = cm.lines(ts,
+                                e_prod[:, idxh],
+                                label="ionization",
+                                axis=(xlabel="Time [s]", 
+                                        ylabel="Ionization [m-3 s-1]",
+                                        title = "$(round(h[idxh]/1e3, digits=0)) km",
+                                        limits=(nothing, (0, 2e10)),
+                                    ),
+                                    #colorscale = log10 ,
+                                    #colorrange = (0.2, 5)
+                                    )
+        
+        #lines!(tsol, hc_total'[:, idxh], label= "Hall")
+        axislegend(position = :lt)
+        
+        ax2 = Axis(fig[1, 1], 
+                yticklabelcolor = :red, 
+                yaxisposition = :right,  
+                ylabel = "Ratio [1]",
+                limits=(nothing, (0, 6))
+                )
+        lines!(tsol, 
+                (pc_total'./hc_total')[:, idxh],
+                color=:red, 
+                label="Ratio",
+                )
+        axislegend()
+        
+        cm.display(fig)
+end
+
+##
+
+max_ionization = stack([findmax(e_prod[idt, :]) for idt in axes(e_prod, 1)])
+
+for idxh in [86, 106, 127, 147, 166]
+        #idxh = 147
+        fig, ax, hm = cm.lines(ts,
+                                h[max_ionization[2, :]]/1e3,
+                                label="Maximum Ionization",
+                                axis=(xlabel="Time [s]", 
+                                        ylabel="Height [km]",
+                                        title = "$(round(h[idxh]/1e3, digits=0)) km",
+                                        limits=(nothing, (100, 300)),
+                                    ),
+                                    #colorscale = log10 ,
+                                    #colorrange = (0.2, 5)
+                                    )
+        
+        #lines!(tsol, hc_total'[:, idxh], label= "Hall")
+        axislegend(position = :lt)
+        
+        ax2 = Axis(fig[1, 1], 
+                yticklabelcolor = :red, 
+                yaxisposition = :right,  
+                ylabel = "Ratio [1]",
+                limits=(nothing, (0, 6))
+                )
+        lines!(tsol, 
+                (pc_total'./hc_total')[:, idxh],
+                color=:red, 
+                label="Ratio",
+                )
+        axislegend()
+        
+        cm.display(fig)
+end
+
 ##
 
 
@@ -530,4 +605,56 @@ lines!(nNOp[:, ixt], h/1e3, label="Dens.")
 lines!(k_NOp[:, ixt]./(1 .+ k_NOp[:, ixt].^2), h/1e3, label="P. Mob")
 lines!(k_NOp[:, ixt]./(1 .+ k_NOp[:, ixt].^2) .* nNOp[:, ixt], h/1e3, label="P. Mob * Dens.")
 axislegend()
+display(fig)
+
+##
+
+path_to_energy_flux = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/Alfven_train_474s/Ie_top.mat"
+spec_data = matread(path_to_energy_flux)
+ie_top = spec_data["Ie_top"]
+spectrum = dropdims(sum(ie_top[1:9, :, :], dims = 1), dims = 1)
+E = spec_data["E"]
+dE = spec_data["dE"]
+tspec = spec_data["t"]
+max_energy = stack([findmax(spectrum[idt, :]) for idt in axes(spectrum, 1)]) # get upper quartile instead?
+e_char1 = dropdims(sum(spectrum' .* dE, dims=1) ./ sum(spectrum' ./ E .* dE, dims=1), dims=1)
+e_char2 = dropdims(sum(spectrum' .*E .* dE, dims=1) ./ sum(spectrum' .* dE, dims=1), dims=1)
+fe =  dropdims(sum(spectrum' .* E .* dE, dims=1), dims=1)
+fn =  dropdims(sum(spectrum' .* dE, dims=1), dims=1)
+
+
+
+fig, ax, hm = heatmap(tspec, 
+                        E,
+                        max.(1, spectrum),
+                        axis=(yscale = log10,
+                            limits=(nothing, (2, 5e3)),
+                            xlabel = "Time [s]",
+                            ylabel = "Energy [eV]",
+                            ),
+                        colorscale = log10,
+                        colorrange=(1e6, 1e10),
+                        )
+#lines!(ax, tspec, e_char1, label="e_char1",) 
+lines!(ax, tspec, e_char2, label="e_char2",)
+#lines!(ax, tspec, E[max_energy[2, :]], label="Max. Energy",)
+
+#lines!(ax, tspec, fe/1e10, label="Energy FLux",)
+#lines!(ax, tspec, fn/1e9, label="Number FLux",)
+
+#axislegend(position = :lt)
+        
+ax2 = Axis(fig[1, 1], 
+                yticklabelcolor = :red, 
+                yaxisposition = :right,  
+                ylabel = "Ratio [1]",
+                limits=((0, 3), (0, 6))
+                )
+lines!(tsol, 
+                (pc_total'./hc_total')[:, idxh],
+                color=:red, 
+                label="Ratio",
+                )
+axislegend()
+Colorbar(fig[1, 2], hm, label = "Energy Flux [eV / m² s eV str]")
 display(fig)

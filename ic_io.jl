@@ -23,7 +23,7 @@ function load_ic(file)
     particles   = data["particles"]
     ts          = data["ts"]
 
-    assign_densities(ni, particles)
+    #assign_densities(ni, particles)
     return tsol, ni, h, T, e_prod, particles, ts
 end
 

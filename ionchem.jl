@@ -7,7 +7,7 @@ using DifferentialEquations: ODEProblem, solve, TRBDF2, PresetTimeCallback
 
 #load reactions, define particles etc.
 const path_reactions_file = "test_data/Reaction rates full set ext.txt"
-const dndt, particles, reactions, ode_raw, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
+const dndt, particles, reactions, ode_raw, ode_mat, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
 const rrates = [r[4] for r in reactions]
 
 #see dndt_str that is being parsed:

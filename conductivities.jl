@@ -11,7 +11,19 @@ cm.set_theme!(Theme(colormap = :hawaii))
 
 qe = 1.60217663e-19 #Coulomb
 
-#tsol, ni, h, T, e_prod, particles, ts = load_ic("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
+tsol, ni, h, T, e_prod, particles, ts = load_ic("/mnt/data/oliver/alfventrain474s/ic_loopIonosphere.jld2")
+n = assign_densities(ni, particles)
+
+# unpack values into global scope for this script
+for (key, value) in pairs(n)
+        key_ = Symbol("n"*string(key))
+        @eval $key_ = $value'
+end
+
+# need to extract keys(n) and assign to local scope
+# keys(n), values(n)
+# or make struct(?) so that n.CO2 = 0 can be added
+# or merge namedtuples, see below
 
 """
 data = load("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
@@ -21,12 +33,36 @@ ts = data["ts"]
 ni = data["ni"]
 """
 
+
+"""
+nN_sum    = n.N_4S  .+ n.N_2D 
+nO_sum    = nO     .+ nO_1D  .+ nO_1S 
+nOp_sum   = nOp_4S .+ nOp_2D .+ nOp_2P
+nO2p_sum  = nO2p   .+ nO2p_a4P
+
+n = merge(n, (
+N_sum    = nN_sum  , 
+O_sum    = nO_sum  , 
+Op_sum   = nOp_sum , 
+O2p_sum  = nO2p_sum, 
+He   = 0,
+CO   = 0,
+CO2  = 0,
+Hep  = 0,
+Cp   = 0,
+COp  = 0,
+CO2p = 0,
+))
+"""
+
+
 # Densities might need transposing
 
 nN    = nN_4S  .+ nN_2D 
 nO    = nO     .+ nO_1D  .+ nO_1S 
 nOp   = nOp_4S .+ nOp_2D .+ nOp_2P
 nO2p  = nO2p   .+ nO2p_a4P
+
 
 nHe   = 0
 nCO   = 0
@@ -433,7 +469,7 @@ fig, ax, hm = cm.heatmap(tsol,
                                     #limits=(nothing, nothing)
                             ),
                             colorscale = log10 ,
-                            colorrange = (1e-8, 1e-5)
+                            #colorrange = (1e-8, 1e-5)
                             )
 cb = cm.Colorbar(fig[1, 2], 
                 hm, 
@@ -446,10 +482,10 @@ fig, ax, hm = cm.heatmap(tsol,
                             hc_total',
                             axis=(xlabel="Time [s]", 
                                     ylabel="Height [km]",
-                                    limits=(nothing, nothing)
+                                    #limits=(nothing, nothing)
                             ),
                             colorscale = log10 ,
-                            colorrange = (1e-8, 1e-5)
+                            #colorrange = (1e-8, 1e-5)
                             )
 cb = cm.Colorbar(fig[1, 2], 
                 hm, 
@@ -466,7 +502,7 @@ fig, ax, hm = cm.heatmap(tsol,
                                     limits=(nothing, (100, 150))
                             ),
                             #colorscale = log10 ,
-                            colorrange = (0.2, 5),
+                            #colorrange = (0.2, 5),
                             )
 cb = cm.Colorbar(fig[1, 2], 
                 hm, 
@@ -623,7 +659,7 @@ fe =  dropdims(sum(spectrum' .* E .* dE, dims=1), dims=1)
 fn =  dropdims(sum(spectrum' .* dE, dims=1), dims=1)
 
 
-
+idxh = 106
 fig, ax, hm = heatmap(tspec, 
                         E,
                         max.(1, spectrum),
@@ -637,23 +673,25 @@ fig, ax, hm = heatmap(tspec,
                         )
 #lines!(ax, tspec, e_char1, label="e_char1",) 
 lines!(ax, tspec, e_char2, label="e_char2",)
+lines!(ax, tspec[[1, end]], [5e2, 5e2],)# label="--",)
 #lines!(ax, tspec, E[max_energy[2, :]], label="Max. Energy",)
 
 #lines!(ax, tspec, fe/1e10, label="Energy FLux",)
 #lines!(ax, tspec, fn/1e9, label="Number FLux",)
 
-#axislegend(position = :lt)
+axislegend(position = :lb)
         
 ax2 = Axis(fig[1, 1], 
                 yticklabelcolor = :red, 
                 yaxisposition = :right,  
                 ylabel = "Ratio [1]",
-                limits=((0, 3), (0, 6))
+                limits=((0, 3), (0.8, 0.88))#, nothing);#(0, 6)),
+                #title = "$(round(h[idxh]/1e3, digits=0)) km",
                 )
 lines!(tsol, 
-                (pc_total'./hc_total')[:, idxh],
+                (hc_total'./pc_total')[:, idxh],
                 color=:red, 
-                label="Ratio",
+                label="Ratio H/P $(round(h[idxh]/1e3, digits=0)) km",
                 )
 axislegend()
 Colorbar(fig[1, 2], hm, label = "Energy Flux [eV / m² s eV str]")

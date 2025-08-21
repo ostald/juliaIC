@@ -5,6 +5,7 @@ include("interpolate_temp.jl")
 include("ion_prod.jl")
 include("ionchem.jl")
 include("get_msis.jl")
+include("ic_io.jl")
 using .ionchem
 using MAT
 using Dates
@@ -91,6 +92,7 @@ function ic_iter(iter, resdir)
     # filter solutions:
     filter = [tt ∈ (ts+te)./2 for tt in sol.t]
     ni = stack(sol.u[filter], dims =1)
+    tsol = sol.t[filter]
 
     assign_densities(ni, particles)
 

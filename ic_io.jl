@@ -27,22 +27,21 @@ function load_ic(file)
     return tsol, ni, h, T, e_prod, particles, ts
 end
 
-function assign_densities(nspecies, particles, prefix="")
-    np = length(particles)
-    for idx in 1:np
-        name = particles[idx][2]
-        name = replace(name,
+function assign_densities(ni, particles)
+    #produces a named touple ni_ntup from 3d matrix ni
+    #so that it can be called ni_ntup.particle_name
+    #organise data in vectors:
+    pn = [p[2] for p in particles]
+    pnames  = replace.(pn, 
                        "+" => "p", 
                        "(" => "_", 
                        ")" => "",
                        "-" => ""
                        )
-        name = "n"*name
-        name = prefix*name
-        println("assigning "*name)
-        
-        global ni
-        ni = nspecies
-        eval(Meta.parse("global $name = transpose(ni[:, $idx, :])"))
-    end
+    ni_vec = [ni[:, i, :] for i in axes(ni, 2)]
+    #put in to dict
+    d = Dict(pnames .=> ni_vec)
+    #convert into named tuple
+    ni_ntup = NamedTuple((Symbol(key),value) for (key,value) in d)
+    return ni_ntup
 end

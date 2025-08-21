@@ -51,8 +51,28 @@ if initialize == "preheat"
     n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
 
 elseif initialize == "loop"
-    _, ni, _, _, _, _, _ = load_ic("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
-    n0 = ni[end, :, :]
+    #initialize cold
+    ne  = neutral_atm["ne"][1:end-3] .* 0 .+ 1
+    n0[findall(p -> p[2] == "NO+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
+
+    #loop porduction
+    loops = 10
+    dt = 0.001 #hardcodet :(
+    ts_new = vcat([ts.+(i-1)*(ts[end].+dt) for i in 1:loops]...)
+    println(string(ts_new[end])) # max time
+    e_prod_new = repeat(e_prod, loops, 1)
+    ts = ts_new
+    e_prod = e_prod_new
+    nt = length(ts)
+
+    #if nloop == 1
+    #    _, ni, _, _, _, _, _ = load_ic("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
+    #else
+    #    _, ni, _, _, _, _, _ = load_ic("/mnt/data/oliver/alfventrain474s/ic_loopIonosphere"*string(nloop-1)*".jld2")
+    #end
+    #n0 = ni[end, :, :]
     #ne = ne[:, end]
     #n0[findall(p -> p[2] == "NO+", particles)[1], :] = nNOp[:, end]
     #n0[findall(p -> p[2] == "O2+", particles)[1], :] = nO2p[:, end]
@@ -75,7 +95,7 @@ Ti = Tn
 T = [Te, Ti, Tn]
 
 
-if initialize != "loop"
+if true #initialize != "loop"
     nO  = neutral_atm["nO"][1:end-3]
     nO2 = neutral_atm["nO2"][1:end-3]
     nN2 = neutral_atm["nN2"][1:end-3]
@@ -169,9 +189,13 @@ ni = stack(sol.u[filter], dims =1)
 save_ic(joinpath(resdir, res_filename), tsol, ni, h, T, e_prod, particles, ts)
 #jldsave(joinpath(resdir, "ic_coldIonosphere.jld2"); tsol, ni, h, T, e_prod, particles, ts)
 
-assign_densities(ni, particles)
-ni_ion = nNOp .+ nO2p .+ nOp_4S .+ nOp_2P .+ nOp_2D .+ nN2p .+ nNp .+ nHp .+ nO2p_a4P
-
+n = assign_densities(ni, particles)
+#for (key, value) in pairs(n)
+#    key_ = Symbol("n"*string(key))
+#    @eval $key_ = $value'
+#    println(key_)
+#end
+ni_ion = n.NOp .+ n.O2p .+ n.Op_4S .+ n.Op_2P .+ n.Op_2D .+ n.N2p .+ n.Np .+ n.Hp .+ n.O2p_a4P
 
 
 using CairoMakie
@@ -185,7 +209,7 @@ fig, ax, hm = cm.heatmap(tsol,
                 max.(1e5, ni[:, 2, :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                        limits=((-10, 3), nothing)
+                        limits=((0, 30), nothing)
                     ),
                 colorscale = log10 ,
                 #colorrange = (1e8, 1e12)
@@ -226,7 +250,7 @@ fig, ax, hm = cm.heatmap(ts,
                         colorrange = (10^(6), 1e11),
                         axis=(xlabel="Time [s]", 
                             ylabel="Height [km]",
-                            limits=((0, 0.5), nothing),
+                            limits=((0, 30), nothing),
                             )
                         )
 cb = cm.Colorbar(fig[1, 2], 
@@ -240,7 +264,7 @@ cm.display(fig)
 #Charge balance
 fig, ax, hm = cm.heatmap(tsol,
                 h/1e3,
-                transpose((ni_ion .- ne ) ./ ne) ,
+                (ni_ion .- n.e ) ./ n.e,
                 #max.(1e5, ni[:, pix[1], :]), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
@@ -258,6 +282,7 @@ cm.display(fig)
 
 fig, ax, lin = scatter(0, 0, axis=(title="Charge conservation",),)
 for idx in 1:nh
-    lines!(tsol, ((ni_ion .- ne ) ./ ne)[idx, :] )
+    lines!(tsol, ((ni_ion .- n.e ) ./ n.e)[:, idx] )
 end
 display(fig)
+

@@ -11,6 +11,11 @@ using JLD2
 
 qe = 1.60217663e-19 #Coulomb
 
+
+resdir = "/mnt/data/oliver/alfventrain474s/"
+jldsave(joinpath(resdir, "ic_activeIonosphere_moret.jld2"); ts, h, T, e_prod, ni, particles)
+
+
 """
 data = load("/mnt/data/oliver/alfventrain474s/ic_coldIonosphere.jld2")
 particles = data["particles"]

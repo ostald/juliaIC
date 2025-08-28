@@ -1,12 +1,14 @@
 module ionchem
 
-include("loadElspec.jl")
 include("interpolate_temp.jl")
 include("ion_prod.jl")
 include("chemistry.jl")
 include("main.jl")
+include("ic_io.jl")
+include("get_msis.jl")
 
-export loadmat, getparams
+export msis
+export save_ic, load_ic, assign_densities
 export interpolate_temp
 export interpolate_q, assign_prod, e_prod_f
 export solveIC, solveIC_allAtOnce, particles, reactions, initIC

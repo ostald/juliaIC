@@ -1,15 +1,9 @@
 #using BenchmarkTools
 
 include("loadElspec.jl");
-include("interpolate_temp.jl")
-include("ion_prod.jl")
-include("ionchem.jl")
-include("get_msis.jl")
-include("ic_io.jl")
-using .ionchem
+using ionchem
 using MAT
 using Dates
-using JLD2
 
 
 #todo

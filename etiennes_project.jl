@@ -4,7 +4,7 @@ include("interpolate_temp.jl")
 include("ion_prod.jl")
 include("ionchem.jl")
 include("get_msis.jl")
-using .ionchem
+using ionchem
 using Dates
 
 include("interpolate_temp.jl")

@@ -1,4 +1,6 @@
 using ionchem
+include("loadElspec.jl")
+
 
 #todo
 # - clean up & simplify (X, rr, temp_2 in ionchem.ic => really necessary for allocation?)
@@ -57,6 +59,8 @@ ni = stack(sol.u, dims =1)
 ##
 
 # Electron desnity in time and height
+using CairoMakie
+cm = CairoMakie
 fig = cm.Figure()
 ax = cm.Axis(fig[1, 1], 
             xlabel="Time [s]", 

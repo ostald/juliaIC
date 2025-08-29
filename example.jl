@@ -1,5 +1,5 @@
 using ionchem
-include("loadElspec.jl")
+include("utils/loadElspec.jl")
 
 
 #todo

@@ -5,7 +5,7 @@ include("ion_prod.jl")
 include("chemistry.jl")
 include("main.jl")
 include("ic_io.jl")
-include("get_msis.jl")
+include("../utils/get_msis.jl")
 
 export msis
 export save_ic, load_ic, assign_densities

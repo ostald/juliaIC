@@ -16,7 +16,7 @@ using Dates
 # - temperature correction of raw electron density ne = P/(1 + Te/Ti) => in ElSpec??
 
 
-function ic_iter(iter, resdir)
+#function ic_iter(iter, resdir)
     #load ELSPEC output to define time, height, ion densities, temperatures, production rates.
     con = loadmat(joinpath(resdir, "ElSpec-iqt_IC_" * string(iter) * ".mat"))
     ts, te, h, nion, T, e_prod, loc = getparams(con)
@@ -88,7 +88,7 @@ function ic_iter(iter, resdir)
     ni = stack(sol.u[filter], dims =1)
     tsol = sol.t[filter]
 
-    assign_densities(ni, particles)
+    n = assign_densities(ni, particles)
 
     save_ic(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"), tsol, ni, h, T, e_prod, particles, ts)
 #    jldsave(joinpath(resdir, "ic_densities_"*string(iter)*".jld2"); particles, ts, te, h, ni, e_prod, T)
@@ -104,11 +104,20 @@ function ic_iter(iter, resdir)
     nOp_4S = ni[:, findall(p -> p[2] == "O+(4S)", particles)[1], :]';
     nN2p   = ni[:, findall(p -> p[2] == "N2+"   , particles)[1], :]';
     """
-    nAr    = nion[7, :, :];
+    n = merge(n, (Ar    = nion[7, :, :]',));
 
 
     #save output, yet to be ordered (code untested)
-    elspec_iri_sorted = permutedims(stack([con["iri"][:, 1, :], con["iri"][:, 2, :], con["iri"][:, 3, :], nN2, nO2, nO, nAr, nNOp, nO2p, nOp_4S]), (1, 3, 2))
+    elspec_iri_sorted = permutedims(stack([con["iri"][:, 1, :], con["iri"][:, 2, :], con["iri"][:, 3, :], n.N2', n.O2', n.O', n.Ar', n.NOp', n.O2p', n.Op_4S']), (1, 3, 2))
+
+    ind_e = findfirst(x -> x[2] == "e-", particles)
+    error("automate this")
+    for r in ionchem.reactions
+        if  ind_e in r[2] && !(ind_e in r[3]) 
+            println(r[1] , r[2]) 
+        end
+    end
+
     eff_rr =   (ionchem.rrates[1](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "O2+", particles)[1], :]' .+
                 ionchem.rrates[2](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "N2+", particles)[1], :]' .+
                 ionchem.rrates[3](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "NO+", particles)[1], :]')./ni[:, findall(p -> p[2] == "e-", particles)[1], :]'

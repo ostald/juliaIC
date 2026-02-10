@@ -8,6 +8,7 @@ p = Plots
 using ionchem
 particles = ionchem.particles
 include("../utils/loadElspec.jl")
+using JLD2
 
 #load result from IonChem:
 resdir = "/home/oliver/Documents/Results/2006-12-12_wtf7";

@@ -33,11 +33,11 @@ end
 
 ppdir = "/home/oliver/Documents/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/home/oliver/Documents/Data/2006-12-12_arc1_4@uhf"
-resdir = "/home/oliver/Documents/Results/2006-12-12_test1";
+resdir = "/home/oliver/Documents/Results/2006-12-12_test2";
 elspecdir = "/home/oliver/Documents/ELSPEC";
 
 btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
-etime = [2006, 12, 12, 20, 31, 0.0];
+etime = [2006, 12, 12, 19, 35, 0.0];
 
 experiment = "arc1"
 """

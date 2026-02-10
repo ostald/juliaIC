@@ -16,7 +16,7 @@ using Dates
 # - temperature correction of raw electron density ne = P/(1 + Te/Ti) => in ElSpec??
 
 
-#function ic_iter(iter, resdir)
+function ic_iter(iter, resdir)
     #load ELSPEC output to define time, height, ion densities, temperatures, production rates.
     con = loadmat(joinpath(resdir, "ElSpec-iqt_IC_" * string(iter) * ".mat"))
     ts, te, h, nion, T, e_prod, loc = getparams(con)

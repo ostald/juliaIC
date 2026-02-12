@@ -10,10 +10,10 @@ function readreactionfile(rfilepath)
                 recordLine = true
                 continue
             end
-            if s == ""
+            if s == "" || s[1] == '_'
                 recordLine = false
             end
-            if recordLine == true
+            if recordLine == true && s[1] != '#'
                 reactions = reactions *"\n"* s
             end
         end

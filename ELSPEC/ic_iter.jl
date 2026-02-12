@@ -109,18 +109,26 @@ function ic_iter(iter, resdir)
 
     #save output, yet to be ordered (code untested)
     elspec_iri_sorted = permutedims(stack([con["iri"][:, 1, :], con["iri"][:, 2, :], con["iri"][:, 3, :], n.N2', n.O2', n.O', n.Ar', n.NOp', n.O2p', n.Op_4S']), (1, 3, 2))
+    
+    #error("automate this")
 
     ind_e = findfirst(x -> x[2] == "e-", particles)
-    error("automate this")
+
+    recombination_reactions = []
+
     for r in ionchem.reactions
         if  ind_e in r[2] && !(ind_e in r[3]) 
             println(r[1] , r[2]) 
+            append!(recombination_reactions, r[1])
         end
     end
 
-    eff_rr =   (ionchem.rrates[1](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "O2+", particles)[1], :]' .+
-                ionchem.rrates[2](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "N2+", particles)[1], :]' .+
-                ionchem.rrates[3](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "NO+", particles)[1], :]')./ni[:, findall(p -> p[2] == "e-", particles)[1], :]'
+
+    eff_rr = sum([ionchem.rrates[i1](T, ones(nt, nh))' .* ni[:, setdiff(ionchem.reactions[i1][2], ind_e)..., :]' for i1 in recombination_reactions]) ./ n.e' 
+
+    #eff_rr =   (ionchem.rrates[1](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "O2+", particles)[1], :]' .+
+    #            ionchem.rrates[2](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "N2+", particles)[1], :]' .+
+    #            ionchem.rrates[3](T, ones(nt, nh))' .* ni[:, findall(p -> p[2] == "NO+", particles)[1], :]')./ni[:, findall(p -> p[2] == "e-", particles)[1], :]'
     #mdict = {"elspec_iri_sorted": elspec_iri_sorted, "eff_rr": eff_rr, "ne_init": ne_init}
     #spio.savemat(direc + 'IC_' + str(iteration) + '.mat', mdict)
 

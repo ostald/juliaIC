@@ -30,7 +30,7 @@ for tt in to_evaluate
 end
 """
 
-
+"""
 ppdir = "/home/oliver/Documents/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/home/oliver/Documents/Data/2006-12-12_arc1_4@uhf"
 resdir = "/home/oliver/Documents/Results/2006-12-12_test2";
@@ -53,6 +53,7 @@ btime = [2022, 11, 02, 17, 05, 0.0]; #must be float array!
 etime = [2022, 11, 02, 17, 10, 0.0];
 
 experiment = "beata"
+"""
 
 
 ppdir = "/mnt/data/oliver/02112022/2022-11-02_beata_4@uhfb";
@@ -81,7 +82,7 @@ end
 #call Elspec
 mat"addpath($elspecdir)"
 
-for iter in 0:44
+for iter in 0:10
     #call Elspec
     mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
     #sleep(1)

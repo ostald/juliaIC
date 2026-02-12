@@ -44,13 +44,12 @@ ni_prod = assign_prod(e_prod_f, e_prod_itp, particles, n0)
 tspan = (ts[1], te[end])
 #tspan = (0, 10)
 
-using Profile
+
 @time sol = ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
-@profview sol = ic(tspan, n0, ni_prod, temp_itp, nh, (ts + te)./2)
 
 ni = stack(sol.u, dims =1)
 
-#be carefule; plots can be generated without transposing, but will look wierd
+#be careful; plots can be generated without transposing, but will look weird
 # using CairoMakie
 # fig, ax, hm = heatmap(sol.t, h, ni[:, 2, :])
 # Colorbar(fig)
@@ -93,16 +92,3 @@ cb = cm.Colorbar(fig[1, 2],
                     hm,
                     label="Ionization rate [m⁻³ s⁻¹]")
 cm.display(fig)
-
-##
-
-#plot!(range(ts[50],te[100],step=1e-2), [stepf(e_prod[1, :], t, ts, te) for t in range(ts[50],te[100],step=1e-2)])
-#plot!(ts[50:100], e_prod[1, 50:100])
-
-
-"""
-When iterating over all the indices for an array, it is better to iterate over eachindex(A)
-    instead of 1:length(A). Not only will this be faster in cases where A is IndexCartesian,
-    but it will also support arrays with custom indexing, such as OffsetArrays. If only the
-    values are needed, then is better to just iterate the array directly, i.e. for a in A.
-"""

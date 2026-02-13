@@ -1,6 +1,6 @@
 using CairoMakie
 using Statistics: mean
-include("loadElspec.jl")
+include("../utils/loadElspec.jl")
 
 
 #convergence in alpha:

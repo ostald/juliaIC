@@ -1,18 +1,9 @@
 using MAT
 #using Plots
-include("interpolate_temp.jl")
-include("ion_prod.jl")
-include("ionchem.jl")
-include("get_msis.jl")
-using .ionchem
+using ionchem
 using Dates
-
-include("interpolate_temp.jl")
-include("chemistry.jl");
-
 using DifferentialEquations
 
-include("ic_io.jl")
 
 initialize = "loop"
 res_filename = "ic_loopIonosphere.jld2"

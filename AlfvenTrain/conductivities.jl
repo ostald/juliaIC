@@ -1,6 +1,6 @@
 using SatelliteToolboxGeomagneticField
 using LinearAlgebra
-include("ic_io.jl")
+include("../src/ic_io.jl")
 
 using CairoMakie
 cm = CairoMakie

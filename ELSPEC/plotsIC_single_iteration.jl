@@ -5,9 +5,10 @@
 
 using Plots
 p = Plots
-using .ionchem
+using ionchem
 particles = ionchem.particles
-include("loadElspec.jl")
+include("../utils/loadElspec.jl")
+using JLD2
 
 #load result from IonChem:
 resdir = "/home/oliver/Documents/Results/2006-12-12_wtf7";

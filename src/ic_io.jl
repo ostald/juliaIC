@@ -45,3 +45,6 @@ function assign_densities(ni, particles)
     ni_ntup = NamedTuple((Symbol(key),value) for (key,value) in d)
     return ni_ntup
 end
+
+
+

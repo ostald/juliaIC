@@ -2,7 +2,6 @@
 using MATLAB
 #using Dates
 include("ic_iter.jl")
-include("loadElspec.jl")
 
 """
 #Define some parameters
@@ -38,7 +37,19 @@ resdir = "/Users/ost051/Documents/PhD/Results/wtf2";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
 btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
-etime = [2006, 12, 12, 20, 31, 0.0];
+etime = [2006, 12, 12, 19, 35, 0.0];
+
+experiment = "arc1"
+"""
+
+
+ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
+fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf"
+resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_old_rr";
+elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
+
+btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
+etime = [2006, 12, 12, 19, 35, 0.0];
 
 experiment = "arc1"
 
@@ -46,13 +57,14 @@ experiment = "arc1"
 """
 ppdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_4@uhfb_pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2022-11-02/02112022/2022-11-02_beata_5@uhfa";
-resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_andres_wtf4";
+resdir = "/Users/ost051/Documents/PhD/Results/2022-11-02_test_richardsrr";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
 
 btime = [2022, 11, 02, 17, 05, 0.0]; #must be float array!
 etime = [2022, 11, 02, 17, 10, 0.0];
 
+"""
 experiment = "beata"
 
 ppdir = "/mnt/data/oliver/02112022/2022-11-02_beata_4@uhfb";
@@ -87,7 +99,8 @@ for iter in 0:4
     #call Elspec
     mat"ElSpec_IC_iter($iter, $resdir, $ppdir, $fitdir, $btime, $etime, $experiment)"
     #call IC
-    ni = ic_iter(iter, resdir)
+    @time ni = ic_iter(iter, resdir)
+    #sleep(1)
 end
 
 

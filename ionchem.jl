@@ -7,7 +7,7 @@ using DifferentialEquations: ODEProblem, solve, TRBDF2, PresetTimeCallback
 
 #load reactions, define particles etc.
 const path_reactions_file = "test_data/Reaction rates full set ext.txt"
-const dndt, particles, reactions, ode_raw, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
+const dndt, particles, reactions, ode_raw, ode_mat, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
 const rrates = [r[4] for r in reactions]
 
 #see dndt_str that is being parsed:
@@ -33,7 +33,8 @@ function ic(tspan, n0, ni_prod, temp_itp, nh, t_save = [], t_cb = [], cb_f = [])
     cb = PresetTimeCallback(t_cb, cb_f)
 
     prob = ODEProblem(myODEf, n0, tspan, (rrates, ni_prod, dndt, temp_itp, T, rr, X))
-    sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, saveat = t_save, callback = cb);
+    sol = solve(prob, TRBDF2(autodiff=false), #reltol = 1e-7, abstol = 1e-3, 
+                saveat = t_save, callback = cb);
     return sol
 end
 

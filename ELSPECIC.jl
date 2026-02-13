@@ -1,4 +1,4 @@
-ENV["MATLAB_HOME"]="/Applications/MATLAB_R2024b.app"
+#ENV["MATLAB_HOME"]="/Applications/MATLAB_R2024b.app"
 using MATLAB
 #using Dates
 include("ic_iter.jl")
@@ -38,7 +38,7 @@ resdir = "/Users/ost051/Documents/PhD/Results/wtf2";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
 btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!
-etime = [2006, 12, 12, 19, 35, 0.0];
+etime = [2006, 12, 12, 20, 31, 0.0];
 
 experiment = "arc1"
 

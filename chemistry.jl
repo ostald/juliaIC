@@ -171,8 +171,8 @@ end
 
 function initIC(path_reactions_file, ordering = [])
     
-    reactions_str = readreactionfile(path_reactions_file)
-    particles_, reactions_ = getReactionsParticles(reactions_str)
+    reactions_str_ = readreactionfile(path_reactions_file)
+    particles_, reactions_ = getReactionsParticles(reactions_str_)
     particles = orderParticles(particles_, ordering)
     reactions, reactions_str = setReactions(reactions_, particles)
     ode_mat = get_ode_mat(reactions, particles)
@@ -222,7 +222,7 @@ function initIC(path_reactions_file, ordering = [])
         dndt[i] = dndtFromString(dndt_str[i])
     end
 
-    return dndt, particles, reactions, ode_raw, dndt_str, reactions_str
+    return dndt, particles, reactions, ode_raw, ode_mat, dndt_str, reactions_str
 end
 
 

@@ -45,7 +45,7 @@ experiment = "arc1"
 
 ppdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf-pp";
 fitdir = "/Users/ost051/Documents/PhD/Data/2006-12-12_arc1_4@uhf"
-resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_test3";
+resdir = "/Users/ost051/Documents/PhD/Results/2006-12-12_old_rr";
 elspecdir = "/Users/ost051/Documents/PhD/ELSPEC";
 
 btime = [2006, 12, 12, 19, 30, 0.0]; #must be float array!

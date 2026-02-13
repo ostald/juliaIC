@@ -1,7 +1,7 @@
 using DifferentialEquations: ODEProblem, solve, TRBDF2, PresetTimeCallback
 
 #load reactions, define particles etc.
-const path_reactions_file = "test_data/Reaction rates full set ext Richards.txt"
+const path_reactions_file = "test_data/Reaction rates full set ext.txt"
 const dndt, particles, reactions, ode_raw, dndt_str, reactions_str = initIC(path_reactions_file)
 const rrates = [r[4] for r in reactions]
 

@@ -10,8 +10,8 @@ res_filename = "ic_loopIonosphere.jld2"
 resdir = "/mnt/data/oliver/alfventrain474s/"
 
 #load reactions, define particles etc.
-path_reactions_file = "test_data/Reaction rates full set ext.txt"
-dndt, particles, reactions, ode_raw, dndt_str, reactions_str = chemistry.initIC(path_reactions_file)
+path_reactions_file = "test_data/Reaction rates full set ext Richards.txt"
+dndt, particles, reactions, ode_raw, dndt_str, reactions_str = ionchem.initIC(path_reactions_file)
 rrates = [r[4] for r in reactions]
 
 

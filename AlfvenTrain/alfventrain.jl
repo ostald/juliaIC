@@ -6,7 +6,8 @@ using DifferentialEquations
 
 
 initialize = "loop"
-res_filename = "ic_loopIonosphere.jld2"
+initialize = "steadystate"
+res_filename = "ic_ss_cold_rrRichards.jld2"
 resdir = "/mnt/data/oliver/alfventrain474s/"
 
 #load reactions, define particles etc.
@@ -15,8 +16,8 @@ dndt, particles, reactions, ode_raw, dndt_str, reactions_str = ionchem.initIC(pa
 rrates = [r[4] for r in reactions]
 
 
-path_to_ion_rates = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/Alfven_train_474s/Qzt_all_L.mat"
-path_to_neutral_atm = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/Alfven_train_474s/neutral_atm.mat"
+path_to_ion_rates = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/z_NEW_ARCHIVE/Alfven_train_474s/Qzt_all_L.mat"
+path_to_neutral_atm = "/mnt/data/etienne/Julia/AURORA.jl/data/Visions2/z_NEW_ARCHIVE//Alfven_train_474s/neutral_atm.mat"
 
 data = matread(path_to_ion_rates)
 total_ionization = data["QO2i"] + data["QOi"] + data["QN2i"]
@@ -74,6 +75,16 @@ elseif initialize == "cold"
     n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
     n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
 
+elseif initialize == "steadystate"
+    #initialize cold
+    ne  = neutral_atm["ne"][1:end-3] .* 0 .+1
+    n0[findall(p -> p[2] == "NO+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O2+", particles)[1], :] = 1/3 .* ne
+    n0[findall(p -> p[2] == "O+(4S)", particles)[1], :] = 1/3 .* ne
+
+    e_prod = sum(e_prod, dims = 1) ./ size(e_prod, 1)
+
+    ts = [0, 200*24*3600]
 end
 
 #heatmap(ts, h./1e3, max.(6, log10.(total_ionization)))#, xlimits=(0,0.1))
@@ -125,7 +136,9 @@ max_ionization = stack([findmax(total_ionization[:, idt]) for idt in axes(total_
 
 ni_prod = Array{Any}(undef, length(particles))
 
-zerof = gen_zerof(nh)
+
+
+zerof = ionchem.gen_zerof(nh)
 ni_prod.= zerof
 
 i_O  = findall(p -> p[2] == "O", particles)[1]
@@ -169,7 +182,7 @@ end
 
 
 prob = ODEProblem(myODEf, n0, tspan, (ni_prod, dndt, rr))
-sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, callback = cb);
+@time sol = solve(prob, TRBDF2(autodiff=false), reltol = 1e-7, abstol = 1e-3, callback = cb);
 #return sol
 
 filter = unique(i -> round(sol.t[i], digits = 4), eachindex(sol.t))
@@ -179,6 +192,7 @@ ni = stack(sol.u[filter], dims =1)
 
 save_ic(joinpath(resdir, res_filename), tsol, ni, h, T, e_prod, particles, ts)
 #jldsave(joinpath(resdir, "ic_coldIonosphere.jld2"); tsol, ni, h, T, e_prod, particles, ts)
+tsol, ni, h, T, e_prod, particles, ts = load_ic(joinpath(resdir, res_filename))
 
 n = assign_densities(ni, particles)
 #for (key, value) in pairs(n)
@@ -186,7 +200,7 @@ n = assign_densities(ni, particles)
 #    @eval $key_ = $value'
 #    println(key_)
 #end
-ni_ion = n.NOp .+ n.O2p .+ n.Op_4S .+ n.Op_2P .+ n.Op_2D .+ n.N2p .+ n.Np .+ n.Hp .+ n.O2p_a4P
+ni_ion = n.NOp .+ n.O2p .+ n.Op_4S .+ n.Op_2P .+ n.Op_2D .+ n.N2p .+ n.Np .+ n.Hp
 
 
 using CairoMakie
@@ -195,40 +209,64 @@ cm.set_theme!(Theme(colormap = :hawaii))
 
 ##
 # Electron desnity in time and height
-fig, ax, hm = cm.heatmap(tsol,
+fig, ax, hm = heatmap(tsol .+ 1e-2,
                 h/1e3,
-                max.(1e5, ni[:, 2, :]), 
+                max.(1e5, n.e), 
                 axis=(xlabel="Time [s]", 
                         ylabel="Height [km]",
-                        limits=((0, 30), nothing)
+                        xscale = log10,
+                        #limits=((0, 30), nothing)
                     ),
                 colorscale = log10 ,
                 #colorrange = (1e8, 1e12)
                 )
-cb = cm.Colorbar(fig[1, 2], 
+cb = Colorbar(fig[1, 2], 
                 hm, 
                 label = "Electron Density [m⁻³]")
-cm.display(fig)
+display(fig)
 
 ##
 
 # Plot all desnities in time and height
-
 for pix in particles
-fig, ax, hm = cm.heatmap(tsol,
-                h/1e3,
-                max.(1e5, ni[:, pix[1], :]), 
-                axis=(xlabel="Time [s]", 
-                        ylabel="Height [km]",
-                        #limits=((-1800, 0), nothing)
-                    ),
-                colorscale = log10 ,
-                #colorrange = (1e8, 1e12)
-                )
-cb = cm.Colorbar(fig[1, 2], 
-                hm, 
-                label = pix[2] *" Density [m⁻³]")
-cm.display(fig)
+    try
+        fig, ax, hm = cm.heatmap(tsol .+ 2e-4,
+            h/1e3,
+            #max.(maximum((ni[:, pix[1], :]))/1e12, ni[:, pix[1], :]), 
+            ni[:, pix[1], :], 
+            axis=(xlabel="Time", 
+                ylabel="Height [km]",
+                limits=((2e-4, nothing), (nothing, 250)),
+                xscale = log10,
+                xticks = ([1e-2, 1, 60, 3600, 24*3600, 240*2600, 100*24*3600], ["0.01s", "1s", "1m", "1h", "1d", "10d", "100d"])
+            ),
+            colorscale = log10 ,
+            #colorrange = (1e8, 1e12)
+        )
+        cb = cm.Colorbar(fig[1, 2], 
+            hm, 
+            label = pix[2] *" Density [m⁻³]"
+        )
+        vlines!(ax, 2e-3)
+        cm.display(fig)
+    catch 
+        fig, ax, hm = cm.heatmap(tsol .+2e-4,
+            h/1e3,
+            max.(1, ni[:, pix[1], :]), 
+            axis=(xlabel="Time [s]", 
+                ylabel="Height [km]",
+                limits=((2e-4, nothing), nothing),
+                xscale = log10,
+                ),
+            colorscale = log10 ,
+            #colorrange = (1e8, 1e12)
+            )
+        cb = cm.Colorbar(fig[1, 2], 
+            hm, 
+            label = pix[2] *" Density [m⁻³]")
+        cm.display(fig)
+    end
+    save(joinpath(resdir, "ss_cold_$(pix[2]).png"), fig, px_per_unit = 3.3)
 end
 
 ##
@@ -271,9 +309,13 @@ cm.display(fig)
 
 #tsol, ni, h, T, e_prod, particles, ts = load_ic(joinpath(resdir, res_filename))
 
+cm = CairoMakie
+CairoMakie.activate!()
+
 fig, ax, lin = scatter(0, 0, axis=(title="Charge conservation",),)
 for idx in 1:nh
-    lines!(tsol, ((ni_ion .- n.e ) ./ n.e)[:, idx] )
+    lines!(tsol, ((ni_ion .- n.e ) ./ n.e)[:, idx], label = "$(round(Int, h[idx]))")
 end
+axislegend(ax)
+#ylims!(-1e-8, 1e-8)
 display(fig)
-

@@ -1,0 +1,142 @@
+#to do!
+# https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017JA025026
+
+
+Table A1. Chemical Reaction Rates Updated in the GLOW Model
+
+N2+ + O2    => O2+ + N2;    k1 = 5.0e-11*(tau_i **(-0.8)) ; [7] [8]  
+N2+ + NO    => NO+ + N2;    k2 = 7.5e-9*(Tn**(-0.52))     ; [4]  
+N2+ + O     => products;    k3 = 1.4e-10*(tau_i**(-0.44)) ;  Ti ≤ 1500◦ K [8]  
+                               = 5.2e-11*(tau_i**(0.2))   ;  Ti > 1500◦ K  
+            => NO+ + N(2D)  k3a = (1 - 0.07*(tau_i**(0.21))) * k3  
+            => O+ + N2      k3b = 0.07*(tau_i**(0.21)) * k3
+O2+ + NO    => NO+ + O2     k4 = 4.1e-10                  ;[4]
+
+O2+ + N	    => products	    k5 = 1.65e-10	                ; (10)
+            => NO+ + O(1S)	k5a = 0.15*k5	
+            => NO+ + O(1D)	k5b = 0.85*k5
+
+O+ + N2	    => NO+ + N	    k6 = 1.72e-12 - 7.2e-13*tau_n + 1.33e-13 * (tau_n ** 2) - 9.28e-15*(tau_n**3) + 6.40e-16*(tau_n**4) T n ≥ 300∘K [4]
+                                 1e-12*(2.05 - 0.00308*Tn), Tn<300°K	
+O+ + O2	    => O2+ + O	 	  k7 = 1.6e-11*(tau_n**(-0.52)) + 5.5e-11*np.exp(-6832/Tn);  (4)
+O+ + NO	    => NO+ + O	    k8 = 8.0e-13	                ; (7) (8)
+N+ + O2	    => products	    k9 = 5.5e-10	                ; (4) (6)
+                NO+ + O	    k9a = 0.09*k9	
+                NO+ + O(1D)	k9b = 0.36*k9	
+                O2+ + N	    k9c = 0.35*k9	
+                O2+ + N(2D)	k9d = 0.15*k9	
+                O+  + NO	  k9c = 0.05*k9	
+N+ + NO	    => products	    k10 = 6.44e-9*(Tn**(-0.44))   ; (4)
+                NO+ + N	    k10a = 0.89*k10	
+                N2+ + O	    k10b = 0.11*k10	
+N+ + O	    => N + O+	      k11 = 2.2e-12	                ; (4) (6) (8)
+O+(2P) + N2	=> N2+ + O	    k12a = 2.0e-10*(tau**(-0.5))  ; (4)
+            => N+ + NO	    k12b = 1.0e-10                ;	(7)
+O+(2P) + O2 => O2+ + O      k13  = 3.1e-10*(tau**(-0.5))  ;	(4)
+O+(2P) + O	=> O+ + O	      k14  = 5.2e-11                ;	(4) (8)
+O+(2D) + N2	=> N2+ + O      k15a = 1.5e-10*(tau**(-0.5))  ;	(4)
+            => O+ + N2	    k15b = 8.0e-10	              ; (7)
+O+(2D) + O2 => O2+ + O      k16 = 1.0e-10*(tau**(-0.5))   ;	(4)
+O+(2D) + NO	=> NO+ + O	    k17 = 1.2e-9                  ;	(6) (8)
+O+(2D) + O	=> O+ + O	      k18 = 5.0e-12	                ; (4) (8)
+N(2P) + N2	=> N + N2	      k19 = 5.0e-17	                ; (3)
+N(2P) + O2  => O + NO	      k20 = 2.5e-12                 ;	(3)
+N(2P) + NO	=> N(2D) + NO	  k21 = 3.0e-11                 ;	(8)
+N(2P) + O	  => products   	k22 = 2.7e-11                 ;	(3)
+                N + O	      k22a = 0.81*k22	
+                N + O(1D)	  k22b = 0.09*k22	
+                N(2D) + O	  k22c = 0.09*k22	
+                N(2D) + O(1D)	k22d = 0.01*k22	
+N(2P) + N   => N(2D) + N	  k23  = 6.0e-13	                ; (8)
+N(2D) + N2	=> N + N2	      k24  = 1.0e-13*np.exp(-510∕Tn) ; (8)
+N(2D) + O2  => products	    k25  = 6.2e-12 * tau_n         ; (2)
+                NO + O    	k25a = 0.9*k25	
+                NO + O(1D)	k25b = 0.1*k25	
+N(2D) + NO  => N2 + O       k26  = 6.7e-11	                ; (8)
+N(2D) + O   => products     k27  = 1.4e-12	                ; (3)
+                N + O	      k27a = 0.9*k27	
+                N + O(1D)   k27b = 0.1*k27	
+                NO+ + e     k27c = 2.5e-18*(Tn**(1∕2)) * (2205 + Tn) * np.exp(-4410∕Tn);  	 	(8)
+N(2D) + O+  => N+ + O	      k28  = 1.3e-10                  ; (6) (8)
+N + O2      => NO + O       k29  = 1.5e-11*np.exp(-3573∕Tn)  ; (8)
+N + NO      => N2 + O	      k30  = 2.2e-11*npexp(-160∕Tn) Tn ≤ 400∘K; (8)
+                                 = 3.3e-11 , Tn > 400∘K 
+N + O	      => NO + hν	 	  k31  = 3.33e-16*(Tn**(-1∕2))*(1.0 - 0.567*(Tn**(-1∕2))) ; (8)
+O(1S) + O2  => products     k32  = 2.32e-12 * np.exp((-6750 - 0.0151*(Tn**2)) /(8.314 * Tn)) ;(8)
+                O + O2	    k32a = 0.69*k32	
+                O(1D) + O2	k32b = 0.31*k32	
+O(1S) + NO  => products     k33  = 8.0e-11	(8)
+                O + NO	    k33a = 0.36*k33	
+                O(1D) + NO  k33b = 0.64*k33	
+O(1S) + O	  => O + O	      k34  = 2.0e-14	(8)
+O(1D) + N2  => O + N2       k35  = 1.8e-11 * np.exp(107∕Tn)    ; (9)
+O(1D) + O2  => O + O        k36  = 3.2e-11 * np.exp(67∕Tn)     ; (9)
+O(1D) + NO	=> O + NO	      k37  = 1.5e-10                      ;	(8)
+O(1D) + O   => O + O	      k38  = 2.5e-11                      ; (9)
+N2(A) + O2  => N2 + O2      k39  = 4.0e-12                      ;	(8)
+N2(A) + NO  => N2 + NO      k40  = 8.9e-11                      ;	(8)
+N2(A) + O   => products     k41  = 2.8e-11                      ;	(10)
+                N2 + O(1S)  k41a = 0.36*k41	
+                N2 + O      k41b = 0.64*k41	
+N2(A) + N   =>  products    k42  = 4.0e-11                       ;	(8)
+                N2 + N(2P)  k42a = 0.9*k42	
+                N2 + N(2D)  k42b = 0.1*k42	
+O+(2D) + N  =>  N+ + O      k43  = 7.5e-11                         ;	(7)
+O+(2P) + N	=>  N+ + O      k44  = 1.0-10                       ;	(7)
+O+(2P) + NO	=>  NO+ + O     k45  = 2.9e-8                       ;	(8)
+O2+ + N2    =>  NO+ + NO    k46  = 5.0e-16                      ;	(1)
+O2+ + N(2D)	=>  N+ + O2     k47  = 2.5e-10                      ;	(5)
+O + e	      =>  O- + hν	    M1   = 1.38e-15*p.exp(-1.76e-4 * Te + 8.56e-8 * Te**2 - 1.43e-11 * Te**3); 	(4)
+O+ + O-	    =>  O + O*	    M2   = 1.0e-7                       ;	(8)
+O- + O      =>  O2 + e      M3   = 2.3e-10                      ;	(4)
+
+
+
+Table A2. Recombination Rates Updated in the GLOW Model
+
+O2+ + e	  => products     ; alpha1  = 1.95e-7 * (tau_e**(-0.70)) , T e ≤ 1200∘K Pavlov (2014)
+                                    = 1.93e-7 * (tau_e**(-0.61)) T e > 1200∘K , Te≤1200°K	Pavlov (2014)
+              O(1D) + O	  ; alpha1a = 0.609*alpha1	
+              O(1D) + O(1D) ; alpha1b=0.389*alpha1	
+              O(1S) + O(1D) ; alpha1c=0.002*alpha1
+NO+ + e   =>  products	  ; 𝛼2 = 3.5e-7 * (tau_e**(-0.69)) , T e ≤ 1200∘K Pavlov (2014)
+                                = 3.02e-7 * (tau_e**(-0.56)), T e > 1200∘K
+              N + O       ; alpha2a = 0.24*alpha2	
+              N(2D) + O	  ; alpha2b = 0.76*alpha2	
+N2+ + e   =>  products	  ; 𝛼3 = 2.2e-7 * (tau_e**(-0.39)), T e ≤ 1200∘K Pavlov (2014)
+                                = 1.95-7 * (tau_e**(-0.57)), T e > 1200∘K, 
+              N(2D) + N   ;	alpha3a = 0.88*alpha3	
+              N(2D) + N(2D); alpha3b= 0.12*alpha3	
+N+ + e    =>  N + hν       ; alpha4 = 3.6e-12*((250/Te)**(0.7))    ;	Schunk and Nagy (2009)
+O+ + e    =>  O + hν      ; alpha5  = 3.7e-12*((250/Te)**(0.7))     ;	Schunk and Nagy (2009)
+
+
+
+Table A3. Electron Quenching Rates Updated in the GLOW Model
+
+O+(2P) + e	  O+ + e	 	Pavlov (2014)
+  O+(2D) + e	 	
+O+(2D) + e	  O+ + e	 	Pavlov (2014)
+N(2P) + e	  N + e	 	Strickland et al. (1999)
+  N(2D) + e	q3b=9.5 × 10-9	
+N(2D) + e	  N + e	 	Pandya and Joshipura (2014)
+O(1S) + e	  O + e	 	Bhardwaj and Raghuram (2012)
+  O(1D) + e	q5b=8.56 × 10-9	
+O(1D) + e	  O + e	 	Bhardwaj and Raghuram (2012)
+
+
+
+Table A4. Radiative Decay Rates Updated in the GLOW Model
+
+O+(2P)	  O+(4S0) + hν(2,470 Å)	A2,470=4.70 × 10-2	Zettergren (2009)
+  O+(2D) + hν(7,320 Å)	A7,320=9.91 × 10-2	Zettergren (2009)
+  O+(2D) + hν(7,330 Å)	A7,330=7.49 × 10-2	Zettergren (2009)
+O+(2D)	  O+(4S0) + hν(3,727 Å)	A3,727=8.89 × 10-5	Strickland et al. (1999)
+N+(2P)	  N+(4S0) + hν(3,466 Å)	A3,466=6.50 × 10-3	Pandya and Joshipura (2014)
+  N+(2D) + hν(10,400 Å)	A10,400=3.45 × 10-3	Pandya and Joshipura (2014)
+N+(2D)	  N+(4S0) + hν(5,200 Å)	A5,200=6.60 × 10-6	Pandya and Joshipura (2014)
+O(1S)	  O+(3P) + hν(2,972 Å)	A2972=.075	Pandya and Joshipura (2014)
+  O+(1D) + hν(5,577 Å)	A5,577=1.26	Pandya and Joshipura (2014)
+O(1D)	  O+(3P) + hν(6,300 Å)	A6,300=6.44 × 10-3	Bhardwaj and Raghuram (2012)
+  O+(3P) + hν(6,364 Å)	A6,364=2.15 × 10-3	Bhardwaj and Raghuram (2012)
+N2(A)	  N2(X) + hν(VK)	AVK=0.352	Strickland et al. (1999)

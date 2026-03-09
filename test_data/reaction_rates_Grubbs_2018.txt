@@ -114,29 +114,29 @@ O+ + e    =>  O + hν      ; alpha5  = 3.7e-12*((250/Te)**(0.7))     ;	Schunk an
 
 Table A3. Electron Quenching Rates Updated in the GLOW Model
 
-O+(2P) + e	  O+ + e	 	Pavlov (2014)
-  O+(2D) + e	 	
-O+(2D) + e	  O+ + e	 	Pavlov (2014)
-N(2P) + e	  N + e	 	Strickland et al. (1999)
-  N(2D) + e	q3b=9.5 × 10-9	
-N(2D) + e	  N + e	 	Pandya and Joshipura (2014)
-O(1S) + e	  O + e	 	Bhardwaj and Raghuram (2012)
-  O(1D) + e	q5b=8.56 × 10-9	
-O(1D) + e	  O + e	 	Bhardwaj and Raghuram (2012)
+O+(2P) + e    =>  O+ + e      ; q1a = 2.5e-8 * (tau_e**(-0.5))   ; Pavlov (2014)
+                  O+(2D) + e  ; q1b = 7.0e-8 * (tau_e**(-0.5))
+O+(2D)  + e   =>  O+ + e      ; q2  = 4.0e-8 * (tau_e**(-0.5))  ;	 	Pavlov (2014)
+N(2P)   + e   =>  N + e       ; q3a = 1.6e-12 * (Te**(0.85))    ; 	 	Strickland et al. (1999)
+                  N(2D) + e   ;	q3b = 9.5e-9	
+N(2D) + e     =>  N + e       ; q4  = 3.8e-12 * (Te**(0.81))    ;	 	Pandya and Joshipura (2014)
+O(1S) + e     =>  O + e       ; q5a = 1.56e-9 * (tau_e**(0.94)) ;	 	Bhardwaj and Raghuram (2012)
+                  O(1D) + e   ; q5b = 8.56e-9	
+O(1D) + e     =>  O + e       ;	q6  = 8.1e-10 * (tau_e**(0.50)) ;	Bhardwaj and Raghuram (2012)
 
 
 
 Table A4. Radiative Decay Rates Updated in the GLOW Model
 
-O+(2P)	  O+(4S0) + hν(2,470 Å)	A2,470=4.70 × 10-2	Zettergren (2009)
-  O+(2D) + hν(7,320 Å)	A7,320=9.91 × 10-2	Zettergren (2009)
-  O+(2D) + hν(7,330 Å)	A7,330=7.49 × 10-2	Zettergren (2009)
-O+(2D)	  O+(4S0) + hν(3,727 Å)	A3,727=8.89 × 10-5	Strickland et al. (1999)
-N+(2P)	  N+(4S0) + hν(3,466 Å)	A3,466=6.50 × 10-3	Pandya and Joshipura (2014)
-  N+(2D) + hν(10,400 Å)	A10,400=3.45 × 10-3	Pandya and Joshipura (2014)
-N+(2D)	  N+(4S0) + hν(5,200 Å)	A5,200=6.60 × 10-6	Pandya and Joshipura (2014)
-O(1S)	  O+(3P) + hν(2,972 Å)	A2972=.075	Pandya and Joshipura (2014)
-  O+(1D) + hν(5,577 Å)	A5,577=1.26	Pandya and Joshipura (2014)
-O(1D)	  O+(3P) + hν(6,300 Å)	A6,300=6.44 × 10-3	Bhardwaj and Raghuram (2012)
-  O+(3P) + hν(6,364 Å)	A6,364=2.15 × 10-3	Bhardwaj and Raghuram (2012)
-N2(A)	  N2(X) + hν(VK)	AVK=0.352	Strickland et al. (1999)
+O+(2P)    =>  O+(4S0) + hν(2,470 Å)   ; A2470 = 4.70e-2     ; Zettergren (2009)
+          =>  O+(2D)  + hν(7,320 Å)   ; A7320 = 9.91e-2     ;	Zettergren (2009)
+          =>  O+(2D)  + hν(7,330 Å)   ; A7330 = 7.49e-2     ; Zettergren (2009)
+O+(2D)    =>  O+(4S0) + hν(3,727 Å)   ;	A3727 = 8.89e-5     ; Strickland et al. (1999)
+N+(2P)    =>  N+(4S0) + hν(3,466 Å)   ; A3466 = 6.50e-3     ;	Pandya and Joshipura (2014)
+              N+(2D)  + hν(10,400 Å)  ;	A10400= 3.45e-3     ; Pandya and Joshipura (2014)
+N+(2D)    =>  N+(4S0) + hν(5,200 Å)   ; A5200 = 6.60e-6     ; Pandya and Joshipura (2014)
+O(1S)     =>  O+(3P)  + hν(2,972 Å)   ; A2972 = 0.075       ; Pandya and Joshipura (2014) 
+              O+(1D)  + hν(5,577 Å)   ; A5577 = 1.26        ; Pandya and Joshipura (2014)
+O(1D)     =>  O+(3P)  + hν(6,300 Å)   ; A6300 = 6.44e-3     ;	Bhardwaj and Raghuram (2012)
+          =>  O+(3P)  + hν(6,364 Å)   ; A6364 = 2.15e-3     ;	Bhardwaj and Raghuram (2012)
+N2(A)     =>  N2(X)   + hν(VK)        ; AVK   = 0.352       ; Strickland et al. (1999)
